@@ -391,7 +391,53 @@ const G = () => (
     .tour-skip{font-size:12px;color:rgba(255,255,255,.35);cursor:pointer;background:none;border:none;font-family:var(--fb)}
     .tour-next:hover{opacity:.9}
 
-    /* ── HECS toggle ── */
+    /* ── Chatbot ── */
+    .chat-fab{position:fixed;bottom:calc(70px + var(--safe-b));right:20px;z-index:500;
+      width:56px;height:56px;border-radius:50%;background:var(--brand-dark);
+      border:none;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.25);
+      display:flex;align-items:center;justify-content:center;transition:transform .18s}
+    .chat-fab:hover{transform:scale(1.08)}
+    .chat-fab-inner{position:relative;width:38px;height:38px}
+    .chat-unread{position:absolute;top:-3px;right:-3px;width:14px;height:14px;
+      border-radius:50%;background:var(--red);border:2px solid var(--surface);
+      font-size:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .chat-window{position:fixed;bottom:calc(138px + var(--safe-b));right:20px;z-index:500;
+      width:360px;max-width:calc(100vw - 28px);background:var(--surface);
+      border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.18);
+      display:flex;flex-direction:column;overflow:hidden;
+      border:1px solid var(--border);max-height:520px}
+    .chat-header{background:var(--brand-dark);padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .chat-header-text{flex:1}
+    .chat-header-name{font-weight:700;font-size:14px;color:#fff;font-family:var(--ff)}
+    .chat-header-status{font-size:11px;color:var(--emerald);margin-top:1px}
+    .chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+    .chat-msg{max-width:86%;line-height:1.55}
+    .chat-msg.user{align-self:flex-end;background:var(--brand);color:#fff;padding:9px 13px;border-radius:14px 14px 3px 14px;font-size:13px}
+    .chat-msg.bot{align-self:flex-start;background:var(--surface2);color:var(--text);padding:9px 13px;border-radius:14px 14px 14px 3px;font-size:13px}
+    .chat-msg.bot .chat-elephant{font-size:16px;margin-bottom:3px}
+    .chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+    .chat-sug{background:var(--brand-dim);color:var(--brand);border:1px solid rgba(27,110,74,.2);
+      border-radius:20px;padding:5px 11px;font-size:12px;cursor:pointer;font-family:var(--fb);
+      transition:all .14s;white-space:nowrap}
+    .chat-sug:hover{background:var(--brand);color:#fff}
+    .chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0}
+    .chat-input{flex:1;border:1.5px solid var(--border);border-radius:20px;
+      padding:8px 14px;font-size:13px;font-family:var(--fb);background:var(--bg);
+      color:var(--text);outline:none;transition:border .14s}
+    .chat-input:focus{border-color:var(--brand)}
+    .chat-send{width:36px;height:36px;border-radius:50%;background:var(--brand);
+      border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:background .14s;flex-shrink:0}
+    .chat-send:hover{background:var(--brand-hover)}
+    .chat-typing{display:flex;gap:4px;align-items:center;padding:3px 0}
+    .chat-typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:typing 1.2s infinite}
+    .chat-typing span:nth-child(2){animation-delay:.2s}
+    .chat-typing span:nth-child(3){animation-delay:.4s}
+    @keyframes typing{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+    @media(max-width:780px){
+      .chat-fab{bottom:calc(62px + var(--safe-b));right:14px}
+      .chat-window{bottom:calc(130px + var(--safe-b));right:14px;width:calc(100vw - 28px)}
+    }
     .hecs-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
     .hecs-toggle-track{width:42px;height:24px;border-radius:12px;background:var(--border);
       transition:background .2s;position:relative;flex-shrink:0}
@@ -685,6 +731,235 @@ function AIScanner({ onConfirm, onCancel }) {
       <input ref={fileRef} type="file" accept="image/*,application/pdf" style={{display:"none"}}
         onChange={e=>processFile(e.target.files[0])} />
     </div>
+  );
+}
+
+/* ─── Elephant Mascot ────────────────────────────────────────────────────── */
+const Elephant = ({size=38}) => {
+  const s = size;
+  const r = s / 200;
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210" width={s} height={s*1.05} style={{flexShrink:0}}>
+      {/* Shadow */}
+      <ellipse cx="100" cy="202" rx="55" ry="7" fill="#3a6a94" opacity="0.15"/>
+      {/* Back legs */}
+      <rect x="68" y="158" width="24" height="38" rx="12" fill="#3a6a94"/>
+      <rect x="108" y="158" width="24" height="38" rx="12" fill="#3a6a94"/>
+      {/* Body */}
+      <ellipse cx="100" cy="158" rx="55" ry="46" fill="#5b8db8"/>
+      <ellipse cx="100" cy="162" rx="34" ry="29" fill="#89b8d9" opacity="0.35"/>
+      {/* Tail */}
+      <path d="M153 138 Q166 124 163 112 Q161 105 166 99" fill="none" stroke="#3a6a94" strokeWidth="3.5" strokeLinecap="round"/>
+      <circle cx="166" cy="97" r="4" fill="#3a6a94"/>
+      {/* Ears */}
+      <ellipse cx="56" cy="98" rx="28" ry="36" fill="#3a6a94"/>
+      <ellipse cx="60" cy="100" rx="18" ry="25" fill="#a8cfe8"/>
+      <ellipse cx="144" cy="98" rx="28" ry="36" fill="#3a6a94"/>
+      <ellipse cx="140" cy="100" rx="18" ry="25" fill="#a8cfe8"/>
+      {/* Head */}
+      <ellipse cx="100" cy="98" rx="50" ry="49" fill="#5b8db8"/>
+      <ellipse cx="90" cy="80" rx="24" ry="20" fill="#89b8d9" opacity="0.4"/>
+      {/* Trunk */}
+      <path d="M76 132 Q60 146 57 166 Q55 180 63 190 Q68 196 74 192 Q80 188 77 176 Q72 162 80 150 Q90 138 96 132" fill="#3a6a94" stroke="#2a5a84" strokeWidth="0.5"/>
+      <ellipse cx="65" cy="192" rx="9" ry="6" fill="#5b8db8"/>
+      <path d="M60 162 Q53 165 56 170" fill="none" stroke="#2a5a84" strokeWidth="1.2" strokeLinecap="round"/>
+      <path d="M58 176 Q51 179 54 184" fill="none" stroke="#2a5a84" strokeWidth="1.2" strokeLinecap="round"/>
+      {/* Tusks */}
+      <path d="M83 132 Q72 142 68 150 Q64 158 70 162 Q76 164 80 156 Q86 144 92 133 Z" fill="#f0e8d0" stroke="#d4c9a8" strokeWidth="0.8"/>
+      <path d="M116 132 Q128 142 132 150 Q136 158 130 162 Q124 164 120 156 Q114 144 108 133 Z" fill="#f0e8d0" stroke="#d4c9a8" strokeWidth="0.8"/>
+      {/* Front legs */}
+      <rect x="76" y="186" width="24" height="18" rx="12" fill="#3a6a94"/>
+      <rect x="100" y="186" width="24" height="18" rx="12" fill="#3a6a94"/>
+      {/* Eyes */}
+      <ellipse cx="85" cy="88" rx="12" ry="13" fill="#f5f5f0"/>
+      <ellipse cx="115" cy="88" rx="12" ry="13" fill="#f5f5f0"/>
+      <ellipse cx="87" cy="89" rx="8" ry="9" fill="#1a3a5c"/>
+      <ellipse cx="117" cy="89" rx="8" ry="9" fill="#1a3a5c"/>
+      <ellipse cx="88" cy="90" rx="5" ry="5.5" fill="#0a1520"/>
+      <ellipse cx="118" cy="90" rx="5" ry="5.5" fill="#0a1520"/>
+      <circle cx="91" cy="86" r="2.5" fill="white"/>
+      <circle cx="121" cy="86" r="2.5" fill="white"/>
+      {/* Glasses lens */}
+      <rect x="74" y="80" width="24" height="17" rx="6" fill="#c8e8ff" opacity="0.28"/>
+      <rect x="102" y="80" width="24" height="17" rx="6" fill="#c8e8ff" opacity="0.28"/>
+      {/* Glasses frames */}
+      <rect x="74" y="80" width="24" height="17" rx="6" fill="none" stroke="#1a2840" strokeWidth="1.8"/>
+      <rect x="102" y="80" width="24" height="17" rx="6" fill="none" stroke="#1a2840" strokeWidth="1.8"/>
+      <line x1="98" y1="88" x2="102" y2="88" stroke="#1a2840" strokeWidth="1.8"/>
+      <path d="M74 88 Q62 88 55 84" fill="none" stroke="#1a2840" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M126 88 Q138 88 145 84" fill="none" stroke="#1a2840" strokeWidth="1.8" strokeLinecap="round"/>
+      {/* Blush */}
+      <ellipse cx="72" cy="106" rx="10" ry="6" fill="#e87070" opacity="0.3"/>
+      <ellipse cx="128" cy="106" rx="10" ry="6" fill="#e87070" opacity="0.3"/>
+      {/* Smile */}
+      <path d="M88 116 Q100 126 112 116" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round"/>
+      {/* Eyebrows */}
+      <path d="M75 74 Q85 68 97 72" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M103 72 Q115 68 125 74" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round"/>
+      {/* Bowtie */}
+      <path d="M88 148 L100 154 L112 148 L100 152 Z" fill="#1a3050"/>
+      <path d="M88 160 L100 154 L112 160 L100 156 Z" fill="#1a3050"/>
+      <ellipse cx="100" cy="154" rx="5" ry="5" fill="#2a5080"/>
+    </svg>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AI CHATBOT — Bookie (powered by Claude)
+═══════════════════════════════════════════════════════════════════════════ */
+const SUGGESTIONS = [
+  "How do I add an invoice?",
+  "How does GST work?",
+  "What is BAS?",
+  "How do I scan a receipt?",
+  "What is HECS?",
+  "How do I add an accountant?",
+  "What is PAYG withholding?",
+  "How do I mark an invoice as paid?",
+];
+
+const SYSTEM_PROMPT = `You are Bookie, the friendly AI assistant for The Busy Bookie — an Australian bookkeeping app for small businesses. You have an elephant mascot with glasses.
+
+You help Australian small business owners navigate the app and understand their bookkeeping, GST, BAS, tax obligations, invoicing, and expenses.
+
+The app has these sections:
+- Dashboard: Overview of revenue, outstanding invoices, GST, and expenses
+- Invoices: Create ATO-compliant tax invoices, scan existing invoices with AI, filter by status, mark as paid
+- Expenses: Track expenses with GST, scan receipts with AI, filter by category/status
+- GST Tracker: See GST collected vs input tax credits (ITCs)
+- BAS Forecast: Quarterly BAS estimates across all 4 AU financial year quarters
+- PAYG & Payroll: Add employees, calculate tax withheld, W1/W2 for BAS, NSW payroll tax
+- Company Tax: Estimate tax liability, sole trader secondary income, HECS repayment calculator
+- Tax Payments: Track and confirm ATO/Revenue NSW payment obligations
+- Settings: Edit business details, manage accountant access
+
+Australian context:
+- GST is 10%, collected on most goods and services
+- BAS is lodged quarterly: Q1 Jul-Sep (due 28 Oct), Q2 Oct-Dec (due 28 Feb), Q3 Jan-Mar (due 28 Apr), Q4 Apr-Jun (due 28 Jul)
+- ITCs are input tax credits — GST paid on business expenses you can claim back
+- PAYG withholding is tax withheld from employee wages (W1/W2 on BAS)
+- NSW payroll tax applies when wages exceed $1.2M annually (5.45%)
+- HECS-HELP repayments are compulsory above $54,435 taxable income
+- ABN is Australian Business Number (11 digits)
+
+Keep responses concise, friendly, and practical. Use Australian spelling. If asked something outside bookkeeping or the app, politely redirect. Never give specific legal or financial advice — recommend consulting a registered tax agent for complex matters. Always be encouraging and warm.`;
+
+function Chatbot({ user }) {
+  const [open, setOpen]       = useState(false);
+  const [messages, setMessages] = useState([
+    { role: "bot", text: "G'day! I'm Bookie 🐘 Your Busy Bookie assistant. I can help you navigate the app, understand GST and BAS, and answer any bookkeeping questions. What can I help you with today?" }
+  ]);
+  const [input, setInput]     = useState("");
+  const [loading, setLoading] = useState(false);
+  const [hasUnread, setHasUnread] = useState(true);
+  const endRef = useRef();
+  const inputRef = useRef();
+
+  useEffect(() => {
+    if (open) {
+      setHasUnread(false);
+      setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
+  }, [open, messages]);
+
+  const send = async (text) => {
+    const msg = text || input.trim();
+    if (!msg || loading) return;
+    setInput("");
+    setMessages(m => [...m, { role: "user", text: msg }]);
+    setLoading(true);
+
+    try {
+      const history = messages
+        .filter(m => m.role !== "bot" || messages.indexOf(m) > 0)
+        .map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
+
+      const resp = await fetch("/.netlify/functions/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: SYSTEM_PROMPT,
+          messages: [...history, { role: "user", content: msg }]
+        })
+      });
+      const data = await resp.json();
+      const reply = data.content?.[0]?.text || "Sorry, I couldn't get a response. Please try again.";
+      setMessages(m => [...m, { role: "bot", text: reply }]);
+    } catch {
+      setMessages(m => [...m, { role: "bot", text: "Sorry, something went wrong. Please try again in a moment." }]);
+    }
+    setLoading(false);
+  };
+
+  const shownSugs = messages.length <= 2;
+
+  return (
+    <>
+      {/* Chat window */}
+      {open && (
+        <div className="chat-window">
+          <div className="chat-header">
+            <Elephant size={34}/>
+            <div className="chat-header-text">
+              <div className="chat-header-name">Bookie</div>
+              <div className="chat-header-status">● Online — ask me anything</div>
+            </div>
+            <button onClick={() => setOpen(false)}
+              style={{ background: "none", border: "none", color: "rgba(255,255,255,.6)", cursor: "pointer", fontSize: "18px", lineHeight: 1 }}>
+              ✕
+            </button>
+          </div>
+
+          <div className="chat-messages">
+            {messages.map((m, i) => (
+              <div key={i} className={`chat-msg ${m.role}`}>
+                {m.text}
+              </div>
+            ))}
+            {loading && (
+              <div className="chat-msg bot">
+                <div className="chat-typing">
+                  <span/><span/><span/>
+                </div>
+              </div>
+            )}
+            <div ref={endRef}/>
+          </div>
+
+          {shownSugs && (
+            <div className="chat-suggestions">
+              {SUGGESTIONS.slice(0, 4).map(s => (
+                <button key={s} className="chat-sug" onClick={() => send(s)}>{s}</button>
+              ))}
+            </div>
+          )}
+
+          <div className="chat-input-row">
+            <input
+              ref={inputRef}
+              className="chat-input"
+              placeholder="Ask Bookie anything..."
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && send()}
+            />
+            <button className="chat-send" onClick={() => send()}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9 22,2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Floating button */}
+      <button className="chat-fab" onClick={() => setOpen(o => !o)} title="Chat with Bookie">
+        <div className="chat-fab-inner">
+          <Elephant size={38}/>
+          {hasUnread && !open && <div className="chat-unread">1</div>}
+        </div>
+      </button>
+    </>
   );
 }
 
@@ -3419,8 +3694,13 @@ export default function App() {
 
       <nav className={`sidebar ${sbOpen?"open":""}`}>
         <div className="sb-logo">
-          <h1>The Busy <span>Bookie</span></h1>
-          <em>Your Bookie, Your Business</em>
+          <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
+            <Elephant size={32}/>
+            <div>
+              <h1>The Busy <span>Bookie</span></h1>
+              <em>Your Bookie, Your Business</em>
+            </div>
+          </div>
         </div>
         <div className="sb-nav">
           {sections.map(sec=>(
@@ -3506,6 +3786,9 @@ export default function App() {
           ))}
         </div>
       </nav>
+
+      {/* Bookie AI Chatbot */}
+      <Chatbot user={user}/>
     </>
   );
 }
