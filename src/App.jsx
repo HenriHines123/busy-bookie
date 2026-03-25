@@ -374,6 +374,26 @@ const G = () => (
     .plan-price{font-family:var(--ff);font-size:19px;color:var(--brand);font-weight:800}
     .plan-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
 
+    /* ── Onboarding Tour ── */
+    .tour-overlay{position:fixed;inset:0;z-index:999;pointer-events:none}
+    .tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:998}
+    .tour-spotlight{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.55);z-index:999;pointer-events:none;transition:all .3s ease}
+    .tour-card{position:fixed;z-index:1000;background:var(--brand-dark);color:#fff;
+      border-radius:14px;padding:22px 22px 18px;max-width:320px;width:calc(100vw - 40px);
+      box-shadow:0 8px 32px rgba(0,0,0,.35);pointer-events:all}
+    .tour-badge{font-size:10px;color:var(--emerald);font-weight:700;letter-spacing:1.2px;
+      text-transform:uppercase;margin-bottom:8px}
+    .tour-title{font-family:var(--ff);font-size:20px;font-weight:800;margin-bottom:8px;line-height:1.2}
+    .tour-body{font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:18px}
+    .tour-footer{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .tour-dots{display:flex;gap:5px}
+    .tour-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:background .2s}
+    .tour-dot.on{background:var(--emerald)}
+    .tour-next{background:var(--emerald);color:var(--brand-dark);border:none;border-radius:7px;
+      padding:9px 18px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:var(--fb)}
+    .tour-skip{font-size:12px;color:rgba(255,255,255,.35);cursor:pointer;background:none;border:none;font-family:var(--fb)}
+    .tour-next:hover{opacity:.9}
+
     /* ── Accountant Portal ── */
     .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
     .role-card{border:1.5px solid var(--border);border-radius:var(--r-sm);padding:16px;cursor:pointer;transition:all .14s;background:var(--surface);text-align:center}
@@ -1779,6 +1799,125 @@ function Register({ onSI }) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   ONBOARDING TOUR
+══════════════════════════════════════════════════════════════════════════ */
+const TOUR_STEPS = [
+  {
+    title:"Welcome to The Busy Bookie! 🎉",
+    body:"Your Australian bookkeeping app is ready. Let us show you around in 60 seconds. We'll walk through each key feature so you can hit the ground running.",
+    target:null, // centred, no spotlight
+    pos:"centre",
+  },
+  {
+    title:"Dashboard",
+    body:"Your financial overview at a glance — revenue collected, money outstanding, net GST payable, and total expenses. Everything updates in real time as you add invoices and expenses.",
+    target:"dashboard",
+    pos:"right",
+  },
+  {
+    title:"Invoices",
+    body:"Create ATO-compliant tax invoices with your ABN, GST per line item, and due dates. You can also scan a photo or PDF of an existing invoice and AI will read all the details automatically.",
+    target:"invoices",
+    pos:"right",
+  },
+  {
+    title:"Expenses",
+    body:"Log business expenses manually or drag and drop a receipt photo — AI reads the amount, date, category and GST automatically. Filter by status, category, or GST type.",
+    target:"expenses",
+    pos:"right",
+  },
+  {
+    title:"GST Tracker",
+    body:"Tracks GST collected on your invoices (1A) versus input tax credits on your expenses (1B). Net GST payable is calculated automatically — ready for your BAS.",
+    target:"gst",
+    pos:"right",
+  },
+  {
+    title:"BAS Forecast",
+    body:"Shows all four Australian financial year quarters with GST collected, input credits, and net payable per quarter. BAS due dates update automatically based on today's date.",
+    target:"bas",
+    pos:"right",
+  },
+  {
+    title:"PAYG & Tax",
+    body:"Add your employees to calculate PAYG withholding for W1/W2 on your BAS. The Company Tax section estimates your annual tax liability — including secondary job income and HECS repayments for sole traders.",
+    target:"payg",
+    pos:"right",
+  },
+  {
+    title:"Tax Payments",
+    body:"Track your ATO and Revenue NSW obligations. When you pay a tax bill, tap Mark Paid, enter the amount and reference number — it's recorded and removed from your outstanding list.",
+    target:"taxpay",
+    pos:"right",
+  },
+  {
+    title:"Settings",
+    body:"Update your business name and ABN, manage accountant access, and re-watch this tour any time. On mobile you can also sign out from here.",
+    target:"settings",
+    pos:"right",
+  },
+  {
+    title:"You're all set! ✅",
+    body:"Start by adding your first invoice or scanning a receipt. If you have an accountant, go to Settings and add their email — they'll get instant access to your books.",
+    target:null,
+    pos:"centre",
+  },
+];
+
+function Tour({ onClose, goTo }) {
+  const [step, setStep] = useState(0);
+  const cur = TOUR_STEPS[step];
+  const isLast = step === TOUR_STEPS.length - 1;
+
+  const next = () => {
+    if (isLast) { onClose(); return; }
+    if (cur.target) goTo(cur.target);
+    setStep(s => s + 1);
+    // After changing page, highlight the sidebar item
+  };
+
+  const skip = () => { onClose(); };
+
+  // Position the card
+  const cardStyle = () => {
+    if (cur.pos === "centre") return {
+      top:"50%", left:"50%",
+      transform:"translate(-50%,-50%)",
+    };
+    // Position near the sidebar item on desktop, top on mobile
+    return {
+      top:"50%", left:"50%",
+      transform:"translate(-50%,-50%)",
+    };
+  };
+
+  return (
+    <>
+      <div className="tour-backdrop" onClick={skip}/>
+      <div className="tour-card" style={cardStyle()}>
+        <div className="tour-badge">Tour · Step {step+1} of {TOUR_STEPS.length}</div>
+        <div className="tour-title">{cur.title}</div>
+        <div className="tour-body">{cur.body}</div>
+        <div className="tour-footer">
+          <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+            <div className="tour-dots">
+              {TOUR_STEPS.map((_,i)=>(
+                <div key={i} className={`tour-dot ${i===step?"on":""}`}
+                  onClick={()=>setStep(i)} style={{cursor:"pointer"}}/>
+              ))}
+            </div>
+            <button className="tour-skip" onClick={skip}>Skip tour</button>
+          </div>
+          <button className="tour-next" onClick={next}>
+            {isLast?"Get started →":"Next →"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    ACCOUNTANT PORTAL
 ══════════════════════════════════════════════════════════════════════════ */
 function AccountantPortal({ user, profile, onViewClient, onSignOut }) {
@@ -1970,7 +2109,7 @@ function AccountantPortal({ user, profile, onViewClient, onSignOut }) {
 /* ══════════════════════════════════════════════════════════════════════════
    SETTINGS (Client)
 ══════════════════════════════════════════════════════════════════════════ */
-function Settings({ user, profile }) {
+function Settings({ user, profile, signOut, onTour }) {
   const [inviteEmail,setInviteEmail] = useState("");
   const [msg,setMsg]                 = useState("");
   const [accountants,setAccountants] = useState([]);
@@ -2110,11 +2249,34 @@ function Settings({ user, profile }) {
           {msg && <div style={{marginTop:"10px",fontSize:"13px",color:msg.startsWith("✓")?"var(--green)":"var(--red)"}}>{msg}</div>}
           <div className="fhint" style={{marginTop:"8px"}}>Enter the email your accountant used to register as an accountant on The Busy Bookie.</div>
         </div>
+        {/* Tour + Sign out */}
+        <div className="card">
+          <div className="sh2-title" style={{marginBottom:"14px"}}>Help & Account</div>
+          <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+            <button className="btn btn-g btn-blk"
+              style={{justifyContent:"flex-start",gap:"10px",fontSize:"14px"}}
+              onClick={onTour}>
+              <span style={{fontSize:"18px"}}>🗺️</span>
+              <div style={{textAlign:"left"}}>
+                <div style={{fontWeight:600}}>Take a tour</div>
+                <div style={{fontSize:"11.5px",color:"var(--muted)",fontWeight:400}}>Replay the onboarding walkthrough</div>
+              </div>
+            </button>
+            <button className="btn btn-d btn-blk"
+              style={{justifyContent:"flex-start",gap:"10px",fontSize:"14px"}}
+              onClick={signOut}>
+              <span style={{fontSize:"18px"}}>👋</span>
+              <div style={{textAlign:"left"}}>
+                <div style={{fontWeight:600}}>Sign Out</div>
+                <div style={{fontSize:"11.5px",color:"var(--muted)",fontWeight:400}}>Sign out of {user.email}</div>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
 /* ══════════════════════════════════════════════════════════════════════════
    PAYG WITHHOLDING
 ══════════════════════════════════════════════════════════════════════════ */
@@ -2327,8 +2489,10 @@ function CompanyTax({ invoices, expenses }) {
   const [otherIncome, setOtherIncome]       = useState("");
   const [otherDeductions, setOtherDeductions] = useState("");
   const [dividends, setDividends]           = useState("");
-  const [employmentIncome, setEmploymentIncome] = useState(""); // secondary job / PAYG employment
-  const [employerTaxWithheld, setEmployerTaxWithheld] = useState(""); // tax already withheld by employer
+  const [employmentIncome, setEmploymentIncome] = useState("");
+  const [employerTaxWithheld, setEmployerTaxWithheld] = useState("");
+  const [hasHECS, setHasHECS]               = useState(false);
+  const [hecsBalance, setHecsBalance]       = useState("");
   const [fy, setFy] = useState(new Date().getMonth()>=6?new Date().getFullYear():new Date().getFullYear()-1);
 
   const paidRevenue  = invoices.filter(i=>i.status==="paid").reduce((s,i)=>s+ci(i).s,0);
@@ -2336,13 +2500,41 @@ function CompanyTax({ invoices, expenses }) {
   const other   = parseFloat(otherIncome)||0;
   const deduct  = parseFloat(otherDeductions)||0;
   const divIn   = parseFloat(dividends)||0;
-  const empInc  = parseFloat(employmentIncome)||0;  // gross income from employer
-  const empTax  = parseFloat(employerTaxWithheld)||0; // tax already withheld
+  const empInc  = parseFloat(employmentIncome)||0;
+  const empTax  = parseFloat(employerTaxWithheld)||0;
+  const hecsBal = parseFloat(hecsBalance)||0;
 
-  // Total income includes employment income from other job
   const grossIncome   = paidRevenue + other + divIn + empInc;
   const totalDeduct   = totalExpense + deduct;
   const taxableIncome = Math.max(0, grossIncome - totalDeduct);
+
+  // HECS-HELP repayment thresholds FY2025-26
+  const hecsRepaymentRate = (income) => {
+    if (income < 54435)  return 0;
+    if (income < 62850)  return 0.010;
+    if (income < 66621)  return 0.020;
+    if (income < 70619)  return 0.025;
+    if (income < 74856)  return 0.030;
+    if (income < 79347)  return 0.035;
+    if (income < 84108)  return 0.040;
+    if (income < 89155)  return 0.045;
+    if (income < 94504)  return 0.050;
+    if (income < 100175) return 0.055;
+    if (income < 106186) return 0.060;
+    if (income < 112557) return 0.065;
+    if (income < 119310) return 0.070;
+    if (income < 126468) return 0.075;
+    if (income < 134057) return 0.080;
+    if (income < 142101) return 0.085;
+    if (income < 150627) return 0.090;
+    if (income < 159664) return 0.095;
+    return 0.100;
+  };
+
+  const hecsRate       = hecsRepaymentRate(taxableIncome);
+  const hecsRepayment  = taxableIncome * hecsRate;
+  const hecsMonthly    = hecsRepayment / 12;
+  const yearsToPayOff  = hecsBal > 0 && hecsRepayment > 0 ? Math.ceil(hecsBal / hecsRepayment) : null;
 
   const RATES = {
     company_small: {rate:0.25, label:"Small Business Company (25%)", note:"Applies to companies with aggregated turnover under $50M that are base rate entities", franking:0.25},
@@ -2533,6 +2725,127 @@ function CompanyTax({ invoices, expenses }) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* HECS-HELP Card */}
+      <div className="card" style={{marginBottom:"18px"}}>
+        <div className="sh2">
+          <div>
+            <div className="sh2-title">HECS-HELP Repayment</div>
+            <div style={{fontSize:"12px",color:"var(--muted)",marginTop:"2px"}}>Based on your total taxable income of {fmt(taxableIncome)}</div>
+          </div>
+          <label style={{display:"flex",alignItems:"center",gap:"8px",cursor:"pointer",fontSize:"13px",color:"var(--muted)",fontWeight:500}}>
+            <input type="checkbox" checked={hasHECS} onChange={e=>setHasHECS(e.target.checked)}
+              style={{width:"16px",height:"16px",accentColor:"var(--brand)",cursor:"pointer"}}/>
+            I have a HECS-HELP debt
+          </label>
+        </div>
+
+        {!hasHECS ? (
+          <div style={{fontSize:"13px",color:"var(--dim)",fontStyle:"italic",padding:"8px 0"}}>
+            Enable above if you have a HECS-HELP student loan debt. The repayment will be added to your tax obligations.
+          </div>
+        ) : (
+          <div style={{display:"flex",flexDirection:"column",gap:"14px"}}>
+
+            {/* Threshold status */}
+            <div style={{
+              background: hecsRate > 0 ? "rgba(212,98,31,.07)" : "var(--brand-dim)",
+              border: `1px solid ${hecsRate > 0 ? "rgba(212,98,31,.2)" : "rgba(26,107,71,.2)"}`,
+              borderRadius:"8px", padding:"13px 16px"
+            }}>
+              <div style={{fontWeight:700,fontSize:"13.5px",color:hecsRate>0?"var(--orange)":"var(--brand)",marginBottom:"5px"}}>
+                {hecsRate > 0
+                  ? `Repayment required — ${(hecsRate*100).toFixed(1)}% of taxable income`
+                  : `Below repayment threshold ($54,435)`}
+              </div>
+              <div style={{fontSize:"12.5px",color:"var(--muted)",lineHeight:1.7}}>
+                {hecsRate > 0
+                  ? `At a taxable income of ${fmt(taxableIncome)}, your compulsory HECS-HELP repayment rate is ${(hecsRate*100).toFixed(1)}%. This is collected by the ATO when you lodge your tax return.`
+                  : `Your taxable income is below the $54,435 minimum repayment threshold. No HECS repayment is required this financial year.`}
+              </div>
+            </div>
+
+            {/* Repayment breakdown */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:"12px"}}>
+              {[
+                {l:"Taxable Income",      v:fmt(taxableIncome),               c:""},
+                {l:"Repayment Rate",      v:hecsRate>0?`${(hecsRate*100).toFixed(1)}%`:"Nil", c:""},
+                {l:"Annual Repayment",    v:fmt(hecsRepayment),               c:hecsRate>0?"r":""},
+                {l:"Monthly to set aside",v:fmt(hecsMonthly),                 c:hecsRate>0?"r":""},
+              ].map(s=>(
+                <div key={s.l} className="card card-xs" style={{boxShadow:"none",background:"var(--surface2)"}}>
+                  <div className="sl">{s.l}</div>
+                  <div className={`sv ${s.c}`} style={{fontSize:"17px"}}>{s.v}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Optional balance field */}
+            <div className="frow">
+              <div className="field">
+                <label>Current HECS-HELP Balance (optional)</label>
+                <input type="number" value={hecsBalance} onChange={e=>setHecsBalance(e.target.value)}
+                  placeholder="e.g. 28000" inputMode="decimal"/>
+                <div className="fhint">Find this in your myGov account → ATO → Loans</div>
+              </div>
+              {hecsBal > 0 && hecsRepayment > 0 && (
+                <div className="field" style={{display:"flex",flexDirection:"column",justifyContent:"flex-end"}}>
+                  <div style={{background:"var(--brand-dim)",border:"1px solid rgba(26,107,71,.15)",borderRadius:"8px",padding:"13px",fontSize:"13px"}}>
+                    <div style={{fontWeight:700,color:"var(--brand)",marginBottom:"4px"}}>
+                      ~{yearsToPayOff} year{yearsToPayOff!==1?"s":""} to pay off
+                    </div>
+                    <div style={{fontSize:"12px",color:"var(--muted)",lineHeight:1.6}}>
+                      At {fmt(hecsRepayment)}/yr on current income.<br/>Balance is indexed to CPI each June.
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Repayment threshold table */}
+            <details style={{cursor:"pointer"}}>
+              <summary style={{fontSize:"12.5px",color:"var(--brand)",fontWeight:600,padding:"4px 0",userSelect:"none"}}>
+                View FY2025-26 repayment threshold table
+              </summary>
+              <div className="tscroll" style={{marginTop:"10px"}}>
+                <table>
+                  <thead><tr><th>Repayment Income</th><th>Rate</th><th>Example: $80k income</th></tr></thead>
+                  <tbody>
+                    {[
+                      ["Below $54,435","Nil","$0"],
+                      ["$54,435 – $62,849","1.0%","N/A"],
+                      ["$62,850 – $66,620","2.0%","N/A"],
+                      ["$66,621 – $70,618","2.5%","N/A"],
+                      ["$70,619 – $74,855","3.0%","N/A"],
+                      ["$74,856 – $79,346","3.5%","N/A"],
+                      ["$79,347 – $84,107","4.0%","$3,200"],
+                      ["$84,108 – $89,154","4.5%","N/A"],
+                      ["$89,155 – $94,503","5.0%","N/A"],
+                      ["$94,504 – $100,174","5.5%","N/A"],
+                      ["$100,175 – $106,185","6.0%","N/A"],
+                      ["$106,186 – $112,556","6.5%","N/A"],
+                      ["$112,557 – $119,309","7.0%","N/A"],
+                      ["$119,310 – $126,467","7.5%","N/A"],
+                      ["$126,468 – $134,056","8.0%","N/A"],
+                      ["$134,057 – $142,100","8.5%","N/A"],
+                      ["$142,101 – $150,626","9.0%","N/A"],
+                      ["$150,627 – $159,663","9.5%","N/A"],
+                      ["$159,664 and above", "10.0%","N/A"],
+                    ].map(([band,rate],i)=>(
+                      <tr key={i} style={hecsRate===parseFloat(rate)/100?{background:"var(--brand-dim)",fontWeight:600}:{}}>
+                        <td style={{fontSize:"12.5px"}}>{band}</td>
+                        <td style={{fontSize:"12.5px",fontWeight:600,color:rate==="Nil"?"var(--green)":"var(--orange)"}}>{rate}</td>
+                        <td style={{fontSize:"12px",color:"var(--muted)"}}>{band.includes("79,347")?"$3,200":"—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+
+          </div>
+        )}
       </div>
 
       <div className="card" style={{borderColor:"rgba(26,107,71,.2)",background:"var(--brand-dim)"}}>
@@ -2900,8 +3213,8 @@ const BOT = [
   {id:"dashboard",label:"Home",     icon:"dash"},
   {id:"invoices", label:"Invoices", icon:"inv"},
   {id:"expenses", label:"Expenses", icon:"exp"},
-  {id:"payg",     label:"PAYG",     icon:"payg"},
-  {id:"settings", label:"Settings", icon:"settings"},
+  {id:"gst",      label:"GST",      icon:"gst"},
+  {id:"settings", label:"Account",  icon:"settings"},
 ];
 
 export default function App() {
@@ -2913,9 +3226,10 @@ export default function App() {
   const [invoices,setInvoices]     = useState([]);
   const [expenses,setExpenses]     = useState([]);
   const [sbOpen,setSbOpen]         = useState(false);
-  const [viewingClient,setViewingClient] = useState(null); // accountant viewing a client
+  const [viewingClient,setViewingClient] = useState(null);
   const [clientInvoices,setClientInvoices] = useState([]);
   const [clientExpenses,setClientExpenses] = useState([]);
+  const [showTour,setShowTour]     = useState(false);
 
   const loadProfile = async (userId) => {
     // Try direct query first, fallback handles RLS issues
@@ -2991,8 +3305,19 @@ export default function App() {
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) { loadProfile(session.user.id); loadUserData(session.user.id); }
-      else { setProfile(null); setInvoices([]); setExpenses([]); setViewingClient(null); }
+      if (session?.user) {
+        loadProfile(session.user.id);
+        loadUserData(session.user.id);
+        if (_event === "SIGNED_IN") {
+          const seen = localStorage.getItem("bb_tour_" + session.user.id);
+          if (!seen) {
+            setTimeout(() => setShowTour(true), 900);
+            localStorage.setItem("bb_tour_" + session.user.id, "1");
+          }
+        }
+      } else {
+        setProfile(null); setInvoices([]); setExpenses([]); setViewingClient(null);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -3118,13 +3443,21 @@ export default function App() {
         {page==="payg"     && <PAYGWithholding/>}
         {page==="comptax"  && <CompanyTax invoices={displayInvoices} expenses={displayExpenses}/>}
         {page==="taxpay"   && <TaxPayments invoices={displayInvoices} expenses={displayExpenses}/>}
-        {page==="settings"  && !isAccountantView && <Settings user={user} profile={profile}/>}
+        {page==="settings"  && !isAccountantView && <Settings user={user} profile={profile} signOut={signOut} onTour={()=>setShowTour(true)}/>}
         {page==="settings"  && isAccountantView  && (
           <div className="card" style={{textAlign:"center",padding:"32px"}}>
             <div style={{color:"var(--muted)",fontSize:"14px"}}>Settings are not available in client view.</div>
           </div>
         )}
       </main>
+
+      {/* Onboarding tour */}
+      {showTour && (
+        <Tour
+          onClose={()=>setShowTour(false)}
+          goTo={id=>{ go(id); }}
+        />
+      )}
 
       <nav className="bot-nav" aria-label="Main navigation">
         <div className="bot-nav-inner">
