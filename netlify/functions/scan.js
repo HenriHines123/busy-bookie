@@ -4,6 +4,8 @@ exports.handler = async function(event) {
   }
   try {
     const body = JSON.parse(event.body);
+    console.log("Calling Anthropic, key starts with:", process.env.ANTHROPIC_KEY?.slice(0,12));
+    
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -17,13 +19,18 @@ exports.handler = async function(event) {
         messages: body.messages,
       }),
     });
+    
     const text = await response.text();
+    console.log("Anthropic response status:", response.status);
+    console.log("Anthropic response:", text.slice(0, 500));
+    
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: text,
     };
   } catch (err) {
+    console.log("Error:", err.message);
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
