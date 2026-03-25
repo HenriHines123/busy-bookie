@@ -504,7 +504,7 @@ function AIScanner({ onConfirm, onCancel }) {
 
       let parsed;
       try { parsed = JSON.parse(text.replace(/```json|```/g,"").trim()); }
-      catch { throw new Error("Could not read document. Try a clearer image."); }
+      catch { throw new Error("throw new Error("AI response: " + text.slice(0, 200));"); }
 
       setAiResult(parsed);
       setAiNote(parsed.note || "");
@@ -942,7 +942,7 @@ function AIInvoiceScanner({ onConfirm, onCancel }) {
       const text = data.content?.find(b=>b.type==="text")?.text || "";
       let parsed;
       try { parsed = JSON.parse(text.replace(/```json|```/g,"").trim()); }
-      catch { throw new Error("Could not read document. Try a clearer image."); }
+      catch { throw new Error("throw new Error("AI response: " + text.slice(0, 200));"); }
       setAiResult(parsed);
       setAiNote(parsed.note || "");
       setForm({
