@@ -359,7 +359,30 @@ const G = () => (
     .plan-price{font-family:var(--ff);font-size:19px;color:var(--brand);font-weight:800}
     .plan-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
 
-    /* ════ RESPONSIVE ════ */
+    /* ── Accountant Portal ── */
+    .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+    .role-card{border:1.5px solid var(--border);border-radius:var(--r-sm);padding:16px;cursor:pointer;transition:all .14s;background:var(--surface);text-align:center}
+    .role-card:hover,.role-card.sel{border-color:var(--brand);background:var(--brand-dim)}
+    .role-card-icon{font-size:28px;margin-bottom:8px}
+    .role-card-name{font-weight:700;font-size:14px;color:var(--text)}
+    .role-card-desc{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+    .acct-banner{background:var(--brand-dark);color:#fff;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:fixed;top:calc(54px + var(--safe-t));left:234px;right:0;z-index:49;font-size:13px}
+    .acct-banner-label{display:flex;align-items:center;gap:8px}
+    .acct-banner em{color:var(--emerald);font-style:normal;font-weight:700}
+    .client-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--sh);cursor:pointer;transition:all .14s}
+    .client-card:hover{border-color:var(--brand);background:var(--brand-dim);transform:translateY(-1px)}
+    .client-card-name{font-family:var(--ff);font-size:16px;font-weight:700;color:var(--text);margin-bottom:3px}
+    .client-card-abn{font-size:12px;color:var(--muted)}
+    .client-card-stats{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--surface2)}
+    .client-stat{text-align:center}
+    .client-stat-val{font-family:var(--ff);font-size:15px;font-weight:700;color:var(--text)}
+    .client-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+    .pending-invite{background:var(--surface);border:1.5px dashed var(--border);border-radius:var(--r);padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    @media(max-width:780px){
+      .acct-banner{left:0;top:calc(54px + var(--safe-t))}
+      .acct-banner-has-banner .main{padding-top:calc(54px + var(--safe-t) + 44px + 14px) !important}
+      .role-grid{grid-template-columns:1fr}
+    }
 
     /* Tablet */
     @media(max-width:1060px){
@@ -439,7 +462,8 @@ const Ic = {
   dl:      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
   back:    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15,18 9,12 15,6"/></svg>,
   menu:    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
-  check:   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20,6 9,17 4,12"/></svg>,
+  settings: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  clients: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
   spark:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/></svg>,
   close:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
 };
@@ -1383,7 +1407,8 @@ const IND = ["Accounting & Finance","Construction & Development","Healthcare","H
 const PL = [{id:"starter",name:"Starter",price:"$0/mo",desc:"Up to 5 invoices/mo · 1 user · GST tracker"},{id:"pro",name:"Pro",price:"$29/mo",desc:"Unlimited invoices · BAS · AI receipt scanning"}];
 
 function Register({ onSI }) {
-  const [step,setStep]   = useState(1);
+  const [step,setStep]   = useState(0); // 0=role select, 1=business, 2=account, 3=plan
+  const [role,setRole]   = useState("client"); // client | accountant
   const [biz,setBiz]     = useState({name:"",abn:"",state:"",industry:""});
   const [acct,setAcct]   = useState({first:"",last:"",email:"",pass:"",conf:""});
   const [plan,setPlan]   = useState("starter");
@@ -1394,8 +1419,13 @@ function Register({ onSI }) {
   const next = () => {
     setErr("");
     if(step===1){
-      if(!biz.name||!biz.abn||!biz.state){setErr("Please fill all required fields.");return;}
-      if(!/^\d{11}$/.test(biz.abn.replace(/[\s\-]/g,""))){setErr("ABN must be 11 digits (e.g. 51 824 753 556).");return;}
+      if(role==="accountant"){
+        // Accountants don't need ABN/business details, just name
+        if(!biz.name){setErr("Please enter your practice or business name.");return;}
+      } else {
+        if(!biz.name||!biz.abn||!biz.state){setErr("Please fill all required fields.");return;}
+        if(!/^\d{11}$/.test(biz.abn.replace(/[\s\-]/g,""))){setErr("ABN must be 11 digits (e.g. 51 824 753 556).");return;}
+      }
     }
     if(step===2){
       if(!acct.first||!acct.email||!acct.pass){setErr("Please fill all required fields.");return;}
@@ -1407,29 +1437,25 @@ function Register({ onSI }) {
 
   const create = async () => {
     setL(true); setErr("");
-    // 1. Create auth user
     const { data, error } = await supabase.auth.signUp({
       email: acct.email,
       password: acct.pass,
       options: { data: { name:`${acct.first} ${acct.last}`.trim() } }
     });
     if (error) { setErr(error.message); setL(false); return; }
-
-    // 2. Save business profile
     const { error: profErr } = await supabase.from("profiles").insert({
       id: data.user.id,
       email: acct.email,
       name: `${acct.first} ${acct.last}`.trim(),
       business_name: biz.name,
-      abn: biz.abn,
+      abn: role==="accountant" ? "" : biz.abn,
       state: biz.state,
       industry: biz.industry,
       plan,
+      role,
     });
     if (profErr) console.error("Profile insert error:", profErr);
-
     setDone(true); setL(false);
-    // onAuthStateChange in App will fire and sign them in automatically
   };
 
   if(done) return (
@@ -1447,8 +1473,9 @@ function Register({ onSI }) {
     </div>
   );
 
-  const titles = ["Your business","Create account","Choose a plan"];
-  const subs   = ["Tell us about your Australian business","Set up your login details","Start free, upgrade any time"];
+  const totalSteps = role==="accountant" ? 3 : 4;
+  const stepTitles = ["Who are you?","Your details","Create account","Choose a plan"];
+  const stepSubs   = ["Tell us how you'll use The Busy Bookie","Tell us about your practice or business","Set up your login details","Start free, upgrade any time"];
 
   return (
     <div className="auth-shell">
@@ -1459,20 +1486,50 @@ function Register({ onSI }) {
           <div className="auth-mob-sub">Your Bookie, Your Business</div>
         </div>
         <div className="auth-box">
-          <div className="pills">{[1,2,3].map(i=><div key={i} className={`pill ${i<step?"done":i===step?"active":""}`}/>)}</div>
-          <div className="auth-title">{titles[step-1]}</div>
-          <div className="auth-sub">{subs[step-1]}</div>
+          {step > 0 && <div className="pills">{Array.from({length:totalSteps-1},(_,i)=><div key={i} className={`pill ${i<step-1?"done":i===step-1?"active":""}`}/>)}</div>}
+          <div className="auth-title">{stepTitles[step]}</div>
+          <div className="auth-sub">{stepSubs[step]}</div>
           <div className="auth-form">
             {err && <div className="auth-err">{err}</div>}
 
-            {step===1 && <>
-              <div className="field"><label>Business / Trading Name *</label><input value={biz.name} onChange={e=>setBiz(b=>({...b,name:e.target.value}))} placeholder="Acme Services Pty Ltd" autoComplete="organization"/></div>
-              <div className="field"><label>ABN *</label><input value={biz.abn} onChange={e=>setBiz(b=>({...b,abn:e.target.value}))} placeholder="XX XXX XXX XXX" inputMode="numeric"/><div className="fhint">11-digit Australian Business Number</div></div>
-              <div className="frow">
-                <div className="field"><label>State *</label><select value={biz.state} onChange={e=>setBiz(b=>({...b,state:e.target.value}))}><option value="">Select…</option>{ST.map(s=><option key={s}>{s}</option>)}</select></div>
-                <div className="field"><label>Industry</label><select value={biz.industry} onChange={e=>setBiz(b=>({...b,industry:e.target.value}))}><option value="">Select…</option>{IND.map(s=><option key={s}>{s}</option>)}</select></div>
+            {step===0 && <>
+              <div className="role-grid">
+                <div className={`role-card ${role==="client"?"sel":""}`} onClick={()=>setRole("client")}>
+                  <div className="role-card-icon">🏢</div>
+                  <div className="role-card-name">Business Owner</div>
+                  <div className="role-card-desc">I run a business and need to manage my GST, invoices and BAS</div>
+                </div>
+                <div className={`role-card ${role==="accountant"?"sel":""}`} onClick={()=>setRole("accountant")}>
+                  <div className="role-card-icon">📊</div>
+                  <div className="role-card-name">Accountant / Bookkeeper</div>
+                  <div className="role-card-desc">I manage books for multiple clients and need to view their accounts</div>
+                </div>
               </div>
-              <button className="auth-btn" onClick={next}>Continue →</button>
+              <button className="auth-btn" onClick={()=>setStep(1)}>Continue →</button>
+            </>}
+
+            {step===1 && <>
+              <div className="field">
+                <label>{role==="accountant"?"Practice / Firm Name *":"Business / Trading Name *"}</label>
+                <input value={biz.name} onChange={e=>setBiz(b=>({...b,name:e.target.value}))} placeholder={role==="accountant"?"Smith & Associates":"Acme Services Pty Ltd"} autoComplete="organization"/>
+              </div>
+              {role==="client" && <>
+                <div className="field"><label>ABN *</label><input value={biz.abn} onChange={e=>setBiz(b=>({...b,abn:e.target.value}))} placeholder="XX XXX XXX XXX" inputMode="numeric"/><div className="fhint">11-digit Australian Business Number</div></div>
+                <div className="frow">
+                  <div className="field"><label>State *</label><select value={biz.state} onChange={e=>setBiz(b=>({...b,state:e.target.value}))}><option value="">Select…</option>{ST.map(s=><option key={s}>{s}</option>)}</select></div>
+                  <div className="field"><label>Industry</label><select value={biz.industry} onChange={e=>setBiz(b=>({...b,industry:e.target.value}))}><option value="">Select…</option>{IND.map(s=><option key={s}>{s}</option>)}</select></div>
+                </div>
+              </>}
+              {role==="accountant" && <>
+                <div className="frow">
+                  <div className="field"><label>State *</label><select value={biz.state} onChange={e=>setBiz(b=>({...b,state:e.target.value}))}><option value="">Select…</option>{ST.map(s=><option key={s}>{s}</option>)}</select></div>
+                  <div className="field"><label>Specialisation</label><select value={biz.industry} onChange={e=>setBiz(b=>({...b,industry:e.target.value}))}><option value="">Select…</option>{["Tax Agent","BAS Agent","Bookkeeper","CPA","CA","Other"].map(s=><option key={s}>{s}</option>)}</select></div>
+                </div>
+              </>}
+              <div style={{display:"flex",gap:"9px"}}>
+                <button className="auth-btn auth-btn-ghost" style={{border:"1.5px solid var(--border)"}} onClick={()=>{setStep(0);setErr("");}}>← Back</button>
+                <button className="auth-btn" onClick={next}>Continue →</button>
+              </div>
             </>}
 
             {step===2 && <>
@@ -1485,11 +1542,14 @@ function Register({ onSI }) {
               <div className="field"><label>Confirm Password *</label><input type="password" value={acct.conf} onChange={e=>setAcct(a=>({...a,conf:e.target.value}))} placeholder="Repeat password" autoComplete="new-password"/></div>
               <div style={{display:"flex",gap:"9px"}}>
                 <button className="auth-btn auth-btn-ghost" style={{border:"1.5px solid var(--border)"}} onClick={()=>{setStep(1);setErr("");}}>← Back</button>
-                <button className="auth-btn" onClick={next}>Continue →</button>
+                {role==="accountant"
+                  ? <button className="auth-btn" onClick={create} disabled={loading}>{loading?"Creating account…":"Create Account"}</button>
+                  : <button className="auth-btn" onClick={next}>Continue →</button>
+                }
               </div>
             </>}
 
-            {step===3 && <>
+            {step===3 && role==="client" && <>
               <div className="plan-grid">
                 {PL.map(p=>(
                   <div key={p.id} className={`plan-card ${plan===p.id?"sel":""}`} onClick={()=>setPlan(p.id)}>
@@ -1514,40 +1574,332 @@ function Register({ onSI }) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   APP SHELL
+   ACCOUNTANT PORTAL
+══════════════════════════════════════════════════════════════════════════ */
+function AccountantPortal({ user, profile, onViewClient, onSignOut }) {
+  const [clients,setClients]         = useState([]);
+  const [pending,setPending]         = useState([]);
+  const [loading,setLoading]         = useState(true);
+  const [inviteEmail,setInviteEmail] = useState("");
+  const [inviteMsg,setInviteMsg]     = useState("");
+  const [clientData,setClientData]   = useState({});
+
+  useEffect(()=>{ loadClients(); },[]);
+
+  const loadClients = async () => {
+    setLoading(true);
+    // Load accepted relationships
+    const { data: rels } = await supabase
+      .from("accountant_clients")
+      .select("*, client:client_id(id,business_name,abn,state,email,name)")
+      .eq("accountant_id", user.id)
+      .eq("status","active");
+
+    // Load pending requests sent to this accountant
+    const { data: pends } = await supabase
+      .from("accountant_clients")
+      .select("*, client:client_id(id,business_name,abn,email,name)")
+      .eq("accountant_id", user.id)
+      .eq("status","pending");
+
+    if (rels) {
+      setClients(rels.map(r=>r.client).filter(Boolean));
+      // Load quick stats for each client
+      rels.forEach(async r => {
+        if (!r.client) return;
+        const [inv,exp] = await Promise.all([
+          supabase.from("invoices").select("id,status,items").eq("user_id",r.client.id),
+          supabase.from("expenses").select("amount,gst_included").eq("user_id",r.client.id),
+        ]);
+        const gstOwed = (inv.data||[]).filter(i=>i.status==="paid").reduce((s,i)=>{
+          const g=(i.items||[]).reduce((a,it)=>a+(it.gst?it.qty*it.unit*0.1:0),0);
+          return s+g;
+        },0);
+        const itc = (exp.data||[]).filter(e=>e.gst_included).reduce((s,e)=>s+e.amount/11,0);
+        setClientData(d=>({...d,[r.client.id]:{invoices:(inv.data||[]).length,netGST:gstOwed-itc}}));
+      });
+    }
+    if (pends) setPending(pends.map(r=>r.client).filter(Boolean));
+    setLoading(false);
+  };
+
+  const acceptInvite = async (clientId) => {
+    await supabase.from("accountant_clients").update({status:"active"})
+      .eq("accountant_id",user.id).eq("client_id",clientId);
+    loadClients();
+  };
+
+  const removeClient = async (clientId) => {
+    await supabase.from("accountant_clients").delete()
+      .eq("accountant_id",user.id).eq("client_id",clientId);
+    setClients(c=>c.filter(x=>x.id!==clientId));
+  };
+
+  const sendInvite = async () => {
+    if (!inviteEmail) return;
+    // Find client by email
+    const { data: clientProf } = await supabase
+      .from("profiles").select("id,business_name").eq("email",inviteEmail.toLowerCase()).eq("role","client").single();
+    if (!clientProf) { setInviteMsg("No client account found with that email."); return; }
+    // Check not already linked
+    const { data: existing } = await supabase.from("accountant_clients")
+      .select("id").eq("accountant_id",user.id).eq("client_id",clientProf.id).single();
+    if (existing) { setInviteMsg("Already linked with this client."); return; }
+    await supabase.from("accountant_clients").insert({
+      accountant_id: user.id, client_id: clientProf.id, status:"active"
+    });
+    setInviteMsg(`✓ Linked with ${clientProf.business_name} successfully.`);
+    setInviteEmail("");
+    loadClients();
+  };
+
+  const name = profile?.name || user.email;
+  const initials = name ? name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase() : "?";
+
+  return (
+    <>
+      <G/>
+      <div className="topbar" style={{left:0}}>
+        <div className="tb-l">
+          <div style={{fontFamily:"var(--ff)",fontSize:"16px",fontWeight:800,color:"var(--text)"}}>
+            The Busy <span style={{color:"var(--brand)"}}>Bookie</span>
+            <span className="badge bg-br" style={{marginLeft:"10px",fontSize:"10px"}}>Accountant</span>
+          </div>
+        </div>
+        <div className="tb-r">
+          <span className="tb-name">{name}</span>
+          <div className="tb-avatar">{initials}</div>
+          <button className="tb-out" onClick={onSignOut}>Sign out</button>
+        </div>
+      </div>
+
+      <div style={{marginTop:"calc(54px + var(--safe-t))",padding:"28px 24px",maxWidth:"960px",margin:"calc(54px + var(--safe-t)) auto 0",paddingLeft:"24px",paddingRight:"24px"}}>
+        <div className="ph">
+          <div>
+            <div className="ph-title">My Clients</div>
+            <div className="ph-sub">{profile?.business_name} · {clients.length} active {clients.length===1?"client":"clients"}</div>
+          </div>
+        </div>
+
+        {/* Pending invites */}
+        {pending.length > 0 && (
+          <div style={{marginBottom:"24px"}}>
+            <div className="sh2-title" style={{marginBottom:"12px"}}>⏳ Pending Requests</div>
+            {pending.map(c=>(
+              <div key={c.id} className="pending-invite">
+                <div>
+                  <div style={{fontWeight:600}}>{c.business_name}</div>
+                  <div style={{fontSize:"12px",color:"var(--muted)"}}>{c.email}</div>
+                </div>
+                <div style={{display:"flex",gap:"8px"}}>
+                  <button className="btn btn-p btn-sm" onClick={()=>acceptInvite(c.id)}>{Ic.check} Accept</button>
+                  <button className="btn btn-d btn-sm" onClick={()=>removeClient(c.id)}>Decline</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add client */}
+        <div className="card" style={{marginBottom:"24px"}}>
+          <div className="sh2-title" style={{marginBottom:"14px"}}>Add a Client</div>
+          <div style={{display:"flex",gap:"10px",flexWrap:"wrap",alignItems:"flex-end"}}>
+            <div className="field" style={{flex:1,minWidth:"200px",marginBottom:0}}>
+              <label>Client Email Address</label>
+              <input type="email" value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} placeholder="client@business.com.au" onKeyDown={e=>e.key==="Enter"&&sendInvite()}/>
+            </div>
+            <button className="btn btn-p" onClick={sendInvite}>{Ic.clients} Link Client</button>
+          </div>
+          {inviteMsg && <div style={{marginTop:"10px",fontSize:"13px",color:inviteMsg.startsWith("✓")?"var(--green)":"var(--red)"}}>{inviteMsg}</div>}
+          <div className="fhint" style={{marginTop:"8px"}}>Enter the email address your client used to register on The Busy Bookie.</div>
+        </div>
+
+        {/* Client list */}
+        {loading ? (
+          <div style={{textAlign:"center",padding:"40px",color:"var(--muted)"}}>Loading clients…</div>
+        ) : clients.length === 0 ? (
+          <div className="card" style={{textAlign:"center",padding:"48px 24px"}}>
+            <div style={{fontSize:"40px",marginBottom:"12px"}}>👥</div>
+            <div style={{fontFamily:"var(--ff)",fontSize:"18px",fontWeight:700,marginBottom:"8px"}}>No clients yet</div>
+            <div style={{color:"var(--muted)",fontSize:"13.5px"}}>Add a client above using their registered email address.</div>
+          </div>
+        ) : (
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:"14px"}}>
+            {clients.map(c=>{
+              const stats = clientData[c.id] || {};
+              return (
+                <div key={c.id} className="client-card" onClick={()=>onViewClient(c)}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                    <div>
+                      <div className="client-card-name">{c.business_name}</div>
+                      <div className="client-card-abn">{c.abn ? `ABN ${c.abn}` : c.email}</div>
+                      {c.state && <span className="badge bg-br" style={{marginTop:"6px",fontSize:"10px"}}>{c.state}</span>}
+                    </div>
+                    <div style={{color:"var(--brand)",fontSize:"20px"}}>→</div>
+                  </div>
+                  <div className="client-card-stats">
+                    <div className="client-stat">
+                      <div className="client-stat-val">{stats.invoices||0}</div>
+                      <div className="client-stat-lbl">Invoices</div>
+                    </div>
+                    <div className="client-stat">
+                      <div className="client-stat-val" style={{color:stats.netGST>0?"var(--red)":"var(--green)",fontSize:"13px"}}>
+                        {stats.netGST!=null?fmt(Math.abs(stats.netGST||0)):"—"}
+                      </div>
+                      <div className="client-stat-lbl">Net GST</div>
+                    </div>
+                    <div className="client-stat" style={{marginLeft:"auto"}}>
+                      <div style={{fontSize:"11px",color:"var(--brand)",fontWeight:600}}>View →</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SETTINGS (Client)
+══════════════════════════════════════════════════════════════════════════ */
+function Settings({ user, profile }) {
+  const [inviteEmail,setInviteEmail] = useState("");
+  const [msg,setMsg]                 = useState("");
+  const [accountants,setAccountants] = useState([]);
+
+  useEffect(()=>{ loadAccountants(); },[]);
+
+  const loadAccountants = async () => {
+    const { data } = await supabase
+      .from("accountant_clients")
+      .select("*, accountant:accountant_id(name,email,business_name)")
+      .eq("client_id", user.id);
+    if (data) setAccountants(data);
+  };
+
+  const inviteAccountant = async () => {
+    if (!inviteEmail) return;
+    const { data: acctProf } = await supabase
+      .from("profiles").select("id,name,business_name").eq("email",inviteEmail.toLowerCase()).eq("role","accountant").single();
+    if (!acctProf) { setMsg("No accountant account found with that email. They need to register first."); return; }
+    const { data: existing } = await supabase.from("accountant_clients")
+      .select("id,status").eq("accountant_id",acctProf.id).eq("client_id",user.id).single();
+    if (existing) { setMsg(`Already linked with ${acctProf.name||acctProf.business_name}.`); return; }
+    await supabase.from("accountant_clients").insert({
+      accountant_id: acctProf.id, client_id: user.id, status:"active"
+    });
+    setMsg(`✓ ${acctProf.name||acctProf.business_name} has been linked to your account.`);
+    setInviteEmail("");
+    loadAccountants();
+  };
+
+  const removeAccountant = async (acctId) => {
+    await supabase.from("accountant_clients").delete()
+      .eq("accountant_id",acctId).eq("client_id",user.id);
+    setAccountants(a=>a.filter(x=>x.accountant_id!==acctId));
+  };
+
+  return (
+    <div>
+      <div className="ph">
+        <div><div className="ph-title">Settings</div><div className="ph-sub">Manage your account and accountant access</div></div>
+      </div>
+
+      <div style={{display:"flex",flexDirection:"column",gap:"18px"}}>
+        {/* Business details */}
+        <div className="card">
+          <div className="sh2-title" style={{marginBottom:"14px"}}>Business Details</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px"}}>
+            {[
+              {l:"Business Name",v:profile?.business_name},
+              {l:"ABN",v:profile?.abn},
+              {l:"State",v:profile?.state},
+              {l:"Industry",v:profile?.industry},
+              {l:"Email",v:profile?.email},
+              {l:"Plan",v:profile?.plan},
+            ].map(f=>(
+              <div key={f.l}>
+                <div style={{fontSize:"10.5px",color:"var(--muted)",textTransform:"uppercase",letterSpacing:"1px",fontWeight:600,marginBottom:"3px"}}>{f.l}</div>
+                <div style={{fontSize:"14px",color:f.v?"var(--text)":"var(--dim)"}}>{f.v||"—"}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Linked accountants */}
+        <div className="card">
+          <div className="sh2-title" style={{marginBottom:"6px"}}>Your Accountant Access</div>
+          <div style={{fontSize:"13px",color:"var(--muted)",marginBottom:"16px"}}>Allow your accountant or bookkeeper to view your data on The Busy Bookie.</div>
+
+          {accountants.length > 0 && (
+            <div style={{display:"flex",flexDirection:"column",gap:"10px",marginBottom:"18px"}}>
+              {accountants.map(a=>(
+                <div key={a.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 14px",background:"var(--surface2)",borderRadius:"var(--r-sm)",flexWrap:"wrap",gap:"8px"}}>
+                  <div>
+                    <div style={{fontWeight:600,fontSize:"14px"}}>{a.accountant?.name||a.accountant?.business_name}</div>
+                    <div style={{fontSize:"12px",color:"var(--muted)"}}>{a.accountant?.email} · <span className={`badge ${a.status==="active"?"bg-g":"bg-o"}`}>{a.status}</span></div>
+                  </div>
+                  <button className="btn btn-d btn-sm" onClick={()=>removeAccountant(a.accountant_id)}>{Ic.trash} Remove</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{display:"flex",gap:"10px",flexWrap:"wrap",alignItems:"flex-end"}}>
+            <div className="field" style={{flex:1,minWidth:"200px",marginBottom:0}}>
+              <label>Accountant's Email Address</label>
+              <input type="email" value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} placeholder="accountant@firm.com.au" onKeyDown={e=>e.key==="Enter"&&inviteAccountant()}/>
+            </div>
+            <button className="btn btn-p" onClick={inviteAccountant}>{Ic.clients} Add Accountant</button>
+          </div>
+          {msg && <div style={{marginTop:"10px",fontSize:"13px",color:msg.startsWith("✓")?"var(--green)":"var(--red)"}}>{msg}</div>}
+          <div className="fhint" style={{marginTop:"8px"}}>Enter the email your accountant used to register as an accountant on The Busy Bookie.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   NAV CONFIG
 ══════════════════════════════════════════════════════════════════════════ */
 const PAGES = [
-  {id:"dashboard",label:"Dashboard",icon:"dash",section:"Main"},
-  {id:"invoices", label:"Invoices",  icon:"inv",  section:"Main"},
-  {id:"expenses", label:"Expenses",  icon:"exp",  section:"Main"},
-  {id:"gst",      label:"GST Tracker",icon:"gst", section:"Tax"},
-  {id:"bas",      label:"BAS Forecast",icon:"bas",section:"Tax"},
+  {id:"dashboard",label:"Dashboard",  icon:"dash",    section:"Main"},
+  {id:"invoices", label:"Invoices",   icon:"inv",     section:"Main"},
+  {id:"expenses", label:"Expenses",   icon:"exp",     section:"Main"},
+  {id:"gst",      label:"GST Tracker",icon:"gst",     section:"Tax"},
+  {id:"bas",      label:"BAS Forecast",icon:"bas",    section:"Tax"},
+  {id:"settings", label:"Settings",   icon:"settings",section:"Account"},
 ];
 const BOT = [
-  {id:"dashboard",label:"Home",    icon:"dash"},
-  {id:"invoices", label:"Invoices",icon:"inv"},
-  {id:"expenses", label:"Expenses",icon:"exp"},
-  {id:"gst",      label:"GST",     icon:"gst"},
-  {id:"bas",      label:"BAS",     icon:"bas"},
+  {id:"dashboard",label:"Home",     icon:"dash"},
+  {id:"invoices", label:"Invoices", icon:"inv"},
+  {id:"expenses", label:"Expenses", icon:"exp"},
+  {id:"gst",      label:"GST",      icon:"gst"},
+  {id:"settings", label:"Settings", icon:"settings"},
 ];
 
 export default function App() {
-  const [screen,setScreen]     = useState("signin");
-  const [user,setUser]         = useState(null);
-  const [profile,setProfile]   = useState(null);
-  const [loading,setLoading]   = useState(true);
-  const [page,setPage]         = useState("dashboard");
-  const [invoices,setInvoices] = useState([]);
-  const [expenses,setExpenses] = useState([]);
-  const [sbOpen,setSbOpen]     = useState(false);
+  const [screen,setScreen]         = useState("signin");
+  const [user,setUser]             = useState(null);
+  const [profile,setProfile]       = useState(null);
+  const [loading,setLoading]       = useState(true);
+  const [page,setPage]             = useState("dashboard");
+  const [invoices,setInvoices]     = useState([]);
+  const [expenses,setExpenses]     = useState([]);
+  const [sbOpen,setSbOpen]         = useState(false);
+  const [viewingClient,setViewingClient] = useState(null); // accountant viewing a client
+  const [clientInvoices,setClientInvoices] = useState([]);
+  const [clientExpenses,setClientExpenses] = useState([]);
 
-  // Load profile from Supabase
   const loadProfile = async (userId) => {
     const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
     if (data) setProfile(data);
   };
 
-  // Load invoices + expenses for logged in user
   const loadUserData = async (userId) => {
     const [invRes, expRes] = await Promise.all([
       supabase.from("invoices").select("*").eq("user_id", userId).order("created_at"),
@@ -1564,7 +1916,22 @@ export default function App() {
     })));
   };
 
-  // Save invoice to Supabase (returns saved invoice with DB id)
+  const loadClientData = async (clientId) => {
+    const [invRes, expRes] = await Promise.all([
+      supabase.from("invoices").select("*").eq("user_id", clientId).order("created_at"),
+      supabase.from("expenses").select("*").eq("user_id", clientId).order("created_at"),
+    ]);
+    if (invRes.data) setClientInvoices(invRes.data.map(r => ({
+      id: r.id, number: r.number, client: r.client, abn: r.client_abn,
+      address: r.address, date: r.date, due: r.due,
+      items: r.items || [], status: r.status, notes: r.notes || "",
+    })));
+    if (expRes.data) setClientExpenses(expRes.data.map(r => ({
+      id: r.id, date: r.date, category: r.category,
+      desc: r.description, amount: Number(r.amount), gstIncluded: r.gst_included,
+    })));
+  };
+
   const saveInvoice = async (inv, userId) => {
     const { data, error } = await supabase.from("invoices").insert({
       user_id: userId, number: inv.number, client: inv.client,
@@ -1574,18 +1941,8 @@ export default function App() {
     if (error) { console.error(error); return inv; }
     return { ...inv, id: data.id };
   };
-
-  // Update invoice status in Supabase
-  const updateInvoiceStatus = async (id, status) => {
-    await supabase.from("invoices").update({ status }).eq("id", id);
-  };
-
-  // Delete invoice from Supabase
-  const deleteInvoice = async (id) => {
-    await supabase.from("invoices").delete().eq("id", id);
-  };
-
-  // Save expense to Supabase
+  const updateInvoiceStatus = async (id, status) => { await supabase.from("invoices").update({ status }).eq("id", id); };
+  const deleteInvoice = async (id) => { await supabase.from("invoices").delete().eq("id", id); };
   const saveExpense = async (exp, userId) => {
     const { data, error } = await supabase.from("expenses").insert({
       user_id: userId, date: exp.date, category: exp.category,
@@ -1594,38 +1951,30 @@ export default function App() {
     if (error) { console.error(error); return exp; }
     return { ...exp, id: data.id };
   };
+  const deleteExpense = async (id) => { await supabase.from("expenses").delete().eq("id", id); };
 
-  // Delete expense from Supabase
-  const deleteExpense = async (id) => {
-    await supabase.from("expenses").delete().eq("id", id);
-  };
-
-  // Listen for auth state changes
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        loadProfile(session.user.id);
-        loadUserData(session.user.id);
-      }
+      if (session?.user) { loadProfile(session.user.id); loadUserData(session.user.id); }
       setLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        loadProfile(session.user.id);
-        loadUserData(session.user.id);
-      } else {
-        setProfile(null);
-        setInvoices([]);
-        setExpenses([]);
-      }
+      if (session?.user) { loadProfile(session.user.id); loadUserData(session.user.id); }
+      else { setProfile(null); setInvoices([]); setExpenses([]); setViewingClient(null); }
     });
     return () => subscription.unsubscribe();
   }, []);
 
   const go      = p => { setPage(p); setSbOpen(false); };
-  const signOut = async () => { await supabase.auth.signOut(); setPage("dashboard"); };
+  const signOut = async () => { await supabase.auth.signOut(); setPage("dashboard"); setViewingClient(null); };
+
+  const handleViewClient = async (client) => {
+    setViewingClient(client);
+    setPage("dashboard");
+    await loadClientData(client.id);
+  };
 
   if (loading) return (
     <>
@@ -1648,8 +1997,23 @@ export default function App() {
     </>
   );
 
-  const biz      = profile?.business_name || user.user_metadata?.businessName || "Your Business";
-  const abn      = profile?.abn || user.user_metadata?.abn || "XX XXX XXX XXX";
+  // Accountant portal (no client selected)
+  if (profile?.role === "accountant" && !viewingClient) return (
+    <AccountantPortal
+      user={user} profile={profile}
+      onViewClient={handleViewClient}
+      onSignOut={signOut}
+    />
+  );
+
+  // Data to display — either own data or client's data (accountant view)
+  const isAccountantView = !!viewingClient;
+  const displayInvoices  = isAccountantView ? clientInvoices : invoices;
+  const displayExpenses  = isAccountantView ? clientExpenses : expenses;
+  const displayProfile   = isAccountantView ? viewingClient  : profile;
+
+  const biz      = displayProfile?.business_name || "Your Business";
+  const abn      = displayProfile?.abn || "XX XXX XXX XXX";
   const name     = profile?.name || user.user_metadata?.name || user.email;
   const initials = name ? name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase() : "?";
   const sections = [...new Set(PAGES.map(p=>p.section))];
@@ -1658,11 +2022,8 @@ export default function App() {
   return (
     <>
       <G/>
-
-      {/* Sidebar overlay */}
       <div className={`sb-overlay ${sbOpen?"show":""}`} onClick={()=>setSbOpen(false)}/>
 
-      {/* Sidebar */}
       <nav className={`sidebar ${sbOpen?"open":""}`}>
         <div className="sb-logo">
           <h1>The Busy <span>Bookie</span></h1>
@@ -1684,11 +2045,10 @@ export default function App() {
         <div className="sb-foot">{biz}<br/>ABN {abn}<br/><span style={{color:"rgba(255,255,255,.18)"}}>busybookie.com.au</span></div>
       </nav>
 
-      {/* Topbar */}
       <header className="topbar">
         <div className="tb-l">
           <button className="menu-btn" onClick={()=>setSbOpen(s=>!s)} aria-label="Menu">{Ic.menu}</button>
-          <div className="tb-title">{label}</div>
+          <div className="tb-title">{isAccountantView ? viewingClient.business_name : label}</div>
         </div>
         <div className="tb-r">
           <span className="tb-name">{name}</span>
@@ -1697,23 +2057,41 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main */}
-      <main className="main">
-        {page==="dashboard" && <Dashboard invoices={invoices} expenses={expenses}/>}
-        {page==="invoices"  && <Invoices  invoices={invoices} setInvoices={setInvoices} biz={biz} abn={abn}
-          onSave={inv=>saveInvoice(inv,user.id)}
-          onDelete={id=>{deleteInvoice(id);setInvoices(p=>p.filter(i=>i.id!==id));}}
-          onPaid={id=>{updateInvoiceStatus(id,"paid");setInvoices(p=>p.map(i=>i.id===id?{...i,status:"paid"}:i));}}
+      {/* Accountant viewing client banner */}
+      {isAccountantView && (
+        <div className="acct-banner">
+          <div className="acct-banner-label">
+            👁 Viewing as accountant: <em>{viewingClient.business_name}</em>
+            {viewingClient.abn && <span style={{color:"rgba(255,255,255,.5)",fontSize:"12px"}}>ABN {viewingClient.abn}</span>}
+          </div>
+          <button className="btn btn-sm" style={{background:"rgba(255,255,255,.15)",color:"#fff",border:"1px solid rgba(255,255,255,.25)"}}
+            onClick={()=>{setViewingClient(null);setClientInvoices([]);setClientExpenses([]);}}>
+            ← Back to My Clients
+          </button>
+        </div>
+      )}
+
+      <main className="main" style={isAccountantView?{paddingTop:"calc(54px + var(--safe-t) + 44px + 22px)"}:{}}>
+        {page==="dashboard" && <Dashboard invoices={displayInvoices} expenses={displayExpenses}/>}
+        {page==="invoices"  && <Invoices  invoices={displayInvoices} setInvoices={isAccountantView?setClientInvoices:setInvoices} biz={biz} abn={abn}
+          onSave={inv=>saveInvoice(inv, isAccountantView ? viewingClient.id : user.id)}
+          onDelete={id=>{deleteInvoice(id);(isAccountantView?setClientInvoices:setInvoices)(p=>p.filter(i=>i.id!==id));}}
+          onPaid={id=>{updateInvoiceStatus(id,"paid");(isAccountantView?setClientInvoices:setInvoices)(p=>p.map(i=>i.id===id?{...i,status:"paid"}:i));}}
         />}
-        {page==="expenses"  && <Expenses  expenses={expenses} setExpenses={setExpenses}
-          onSave={exp=>saveExpense(exp,user.id)}
-          onDelete={id=>{deleteExpense(id);setExpenses(p=>p.filter(e=>e.id!==id));}}
+        {page==="expenses"  && <Expenses  expenses={displayExpenses} setExpenses={isAccountantView?setClientExpenses:setExpenses}
+          onSave={exp=>saveExpense(exp, isAccountantView ? viewingClient.id : user.id)}
+          onDelete={id=>{deleteExpense(id);(isAccountantView?setClientExpenses:setExpenses)(p=>p.filter(e=>e.id!==id));}}
         />}
-        {page==="gst"       && <GSTTracker invoices={invoices} expenses={expenses}/>}
-        {page==="bas"       && <BASForecasting invoices={invoices} expenses={expenses}/>}
+        {page==="gst"       && <GSTTracker invoices={displayInvoices} expenses={displayExpenses}/>}
+        {page==="bas"       && <BASForecasting invoices={displayInvoices} expenses={displayExpenses}/>}
+        {page==="settings"  && !isAccountantView && <Settings user={user} profile={profile}/>}
+        {page==="settings"  && isAccountantView  && (
+          <div className="card" style={{textAlign:"center",padding:"32px"}}>
+            <div style={{color:"var(--muted)",fontSize:"14px"}}>Settings are not available in client view.</div>
+          </div>
+        )}
       </main>
 
-      {/* Mobile bottom nav */}
       <nav className="bot-nav" aria-label="Main navigation">
         <div className="bot-nav-inner">
           {BOT.map(p=>(
