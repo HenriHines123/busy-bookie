@@ -326,23 +326,20 @@ const G = () => (
     .auth-mob-hd{
       display:none;
       background:var(--brand-dark);
-      padding:calc(28px + var(--safe-t)) 28px 32px;
+      padding:calc(36px + var(--safe-t)) 28px 36px;
       text-align:center;
       position:relative;
       overflow:hidden;
     }
     .auth-mob-circle1{position:absolute;top:-60px;right:-60px;
-      width:200px;height:200px;border-radius:50%;
-      background:rgba(110,231,183,.07);pointer-events:none;}
-    .auth-mob-circle2{position:absolute;bottom:-40px;left:-40px;
-      width:140px;height:140px;border-radius:50%;
-      background:rgba(110,231,183,.05);pointer-events:none;}
-    .auth-mob-logo{font-family:var(--ff);font-size:30px;color:#fff;font-weight:800;letter-spacing:-.5px}
+      width:220px;height:220px;border-radius:50%;
+      background:rgba(110,231,183,.06);pointer-events:none;}
+    .auth-mob-circle2{position:absolute;bottom:-50px;left:-50px;
+      width:160px;height:160px;border-radius:50%;
+      background:rgba(110,231,183,.04);pointer-events:none;}
+    .auth-mob-logo{font-family:var(--ff);font-size:34px;color:#fff;font-weight:800;letter-spacing:-.5px;line-height:1}
     .auth-mob-logo span{color:var(--emerald)}
-    .auth-mob-sub{font-size:12px;color:rgba(255,255,255,.45);font-style:italic;font-family:var(--ff);margin-top:5px}
-    .auth-mob-feats{display:flex;flex-direction:column;gap:7px;margin-top:18px;text-align:left}
-    .auth-mob-feat{display:flex;align-items:center;gap:9px;font-size:12px;color:rgba(255,255,255,.55)}
-    .auth-mob-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald);flex-shrink:0}
+    .auth-mob-sub{font-size:13px;color:rgba(255,255,255,.42);font-style:italic;font-family:var(--ff);margin-top:8px}
     .auth-panel{display:flex;flex-direction:column;justify-content:center;
       align-items:center;padding:44px 48px;background:var(--bg);overflow-y:auto}
     .auth-box{width:100%;max-width:400px}
@@ -394,7 +391,15 @@ const G = () => (
     .tour-skip{font-size:12px;color:rgba(255,255,255,.35);cursor:pointer;background:none;border:none;font-family:var(--fb)}
     .tour-next:hover{opacity:.9}
 
-    /* ── Accountant Portal ── */
+    /* ── HECS toggle ── */
+    .hecs-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+    .hecs-toggle-track{width:42px;height:24px;border-radius:12px;background:var(--border);
+      transition:background .2s;position:relative;flex-shrink:0}
+    .hecs-toggle-track.on{background:var(--brand)}
+    .hecs-toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;
+      border-radius:50%;background:#fff;transition:transform .2s;
+      box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .hecs-toggle-track.on .hecs-toggle-thumb{transform:translateX(18px)}
     .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
     .role-card{border:1.5px solid var(--border);border-radius:var(--r-sm);padding:16px;cursor:pointer;transition:all .14s;background:var(--surface);text-align:center}
     .role-card:hover,.role-card.sel{border-color:var(--brand);background:var(--brand-dim)}
@@ -695,6 +700,24 @@ function Dashboard({ invoices, expenses }) {
   const totE = expenses.reduce((a,e)=>a+e.amount,0);
   const recent = [...invoices].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,4);
 
+  // HECS from localStorage
+  const hecsEnabled = localStorage.getItem("bb_hecs_enabled")==="true";
+  const hecsRate = (income) => {
+    if (income < 54435)  return 0;
+    if (income < 62850)  return 0.010;
+    if (income < 66621)  return 0.020;
+    if (income < 70619)  return 0.025;
+    if (income < 74856)  return 0.030;
+    if (income < 79347)  return 0.035;
+    if (income < 84108)  return 0.040;
+    if (income < 89155)  return 0.045;
+    if (income < 94504)  return 0.050;
+    if (income < 100175) return 0.055;
+    return 0.060 + Math.min(0.04, Math.floor((income-100175)/10000)*0.005);
+  };
+  const hecsRepayment = hecsEnabled ? rev * hecsRate(rev) : 0;
+  const hecsMonthly   = hecsRepayment / 12;
+
   return (
     <div>
       <div className="ph">
@@ -717,6 +740,13 @@ function Dashboard({ invoices, expenses }) {
             <div className="ss">{x.s}</div>
           </div>
         ))}
+        {hecsEnabled && (
+          <div className="card card-xs" style={{borderColor:"rgba(212,98,31,.2)",background:"rgba(212,98,31,.04)"}}>
+            <div className="sl">HECS Repayment</div>
+            <div className="sv" style={{color:"var(--orange)"}}>{fmt(hecsRepayment)}</div>
+            <div className="ss">{fmt(hecsMonthly)}/mo est. · Set aside</div>
+          </div>
+        )}
       </div>
 
       <div className="g2">
@@ -1581,11 +1611,6 @@ function SignIn({ onReg }) {
           <div className="auth-mob-circle2"/>
           <div className="auth-mob-logo">The Busy <span>Bookie</span></div>
           <div className="auth-mob-sub">Your Bookie, Your Business</div>
-          <div className="auth-mob-feats">
-            {["ATO-compliant invoices with ABN","Auto GST & BAS forecasting","AI receipt & invoice scanning","Works on iPhone, iPad & desktop"].map(f=>(
-              <div className="auth-mob-feat" key={f}><div className="auth-mob-dot"/>{f}</div>
-            ))}
-          </div>
         </div>
         <div className="auth-box">
           <div className="auth-title">Welcome back</div>
@@ -1704,11 +1729,6 @@ function Register({ onSI }) {
           <div className="auth-mob-circle2"/>
           <div className="auth-mob-logo">The Busy <span>Bookie</span></div>
           <div className="auth-mob-sub">Your Bookie, Your Business</div>
-          <div className="auth-mob-feats">
-            {["ATO-compliant invoices with ABN","Auto GST & BAS forecasting","AI receipt & invoice scanning","Works on iPhone, iPad & desktop"].map(f=>(
-              <div className="auth-mob-feat" key={f}><div className="auth-mob-dot"/>{f}</div>
-            ))}
-          </div>
         </div>
         <div className="auth-box">
           {step > 0 && <div className="pills">{Array.from({length:totalSteps-1},(_,i)=><div key={i} className={`pill ${i<step-1?"done":i===step-1?"active":""}`}/>)}</div>}
@@ -2485,15 +2505,29 @@ function PAYGWithholding() {
    COMPANY TAX ESTIMATE
 ══════════════════════════════════════════════════════════════════════════ */
 function CompanyTax({ invoices, expenses }) {
-  const [entityType, setEntityType]         = useState("company_small");
-  const [otherIncome, setOtherIncome]       = useState("");
+  const [entityType, setEntityType]           = useState(() => localStorage.getItem("bb_entity_type")||"company_small");
+  const [otherIncome, setOtherIncome]         = useState("");
   const [otherDeductions, setOtherDeductions] = useState("");
-  const [dividends, setDividends]           = useState("");
-  const [employmentIncome, setEmploymentIncome] = useState("");
+  const [dividends, setDividends]             = useState("");
+  const [employmentIncome, setEmploymentIncome]     = useState("");
   const [employerTaxWithheld, setEmployerTaxWithheld] = useState("");
-  const [hasHECS, setHasHECS]               = useState(false);
-  const [hecsBalance, setHecsBalance]       = useState("");
+  const [hasHECS, setHasHECS]               = useState(() => localStorage.getItem("bb_hecs_enabled")==="true");
+  const [hecsBalance, setHecsBalance]       = useState(() => localStorage.getItem("bb_hecs_balance")||"");
   const [fy, setFy] = useState(new Date().getMonth()>=6?new Date().getFullYear():new Date().getFullYear()-1);
+
+  // Persist HECS settings so Dashboard can read them
+  const toggleHECS = (val) => {
+    setHasHECS(val);
+    localStorage.setItem("bb_hecs_enabled", val);
+  };
+  const updateHECSBalance = (val) => {
+    setHecsBalance(val);
+    localStorage.setItem("bb_hecs_balance", val);
+  };
+  const updateEntityType = (val) => {
+    setEntityType(val);
+    localStorage.setItem("bb_entity_type", val);
+  };
 
   const paidRevenue  = invoices.filter(i=>i.status==="paid").reduce((s,i)=>s+ci(i).s,0);
   const totalExpense = expenses.reduce((s,e)=>s+(e.gstIncluded?e.amount-e.amount/11:e.amount),0);
@@ -2585,7 +2619,7 @@ function CompanyTax({ invoices, expenses }) {
         <div className="sh2-title" style={{marginBottom:"12px"}}>Entity Type</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:"9px"}}>
           {Object.entries(RATES).map(([k,v])=>(
-            <div key={k} className={`plan-card ${entityType===k?"sel":""}`} onClick={()=>setEntityType(k)} style={{textAlign:"left"}}>
+            <div key={k} className={`plan-card ${entityType===k?"sel":""}`} onClick={()=>updateEntityType(k)} style={{textAlign:"left"}}>
               <div className="plan-name">{v.rate!=null?`${(v.rate*100).toFixed(0)}%`:"Brackets"}</div>
               <div style={{fontSize:"12px",fontWeight:600,color:"var(--text)",marginTop:"2px"}}>{v.label.split("(")[0].trim()}</div>
             </div>
@@ -2734,11 +2768,14 @@ function CompanyTax({ invoices, expenses }) {
             <div className="sh2-title">HECS-HELP Repayment</div>
             <div style={{fontSize:"12px",color:"var(--muted)",marginTop:"2px"}}>Based on your total taxable income of {fmt(taxableIncome)}</div>
           </div>
-          <label style={{display:"flex",alignItems:"center",gap:"8px",cursor:"pointer",fontSize:"13px",color:"var(--muted)",fontWeight:500}}>
-            <input type="checkbox" checked={hasHECS} onChange={e=>setHasHECS(e.target.checked)}
-              style={{width:"16px",height:"16px",accentColor:"var(--brand)",cursor:"pointer"}}/>
-            I have a HECS-HELP debt
-          </label>
+          <div className="hecs-toggle" onClick={()=>toggleHECS(!hasHECS)}>
+            <div className={`hecs-toggle-track ${hasHECS?"on":""}`}>
+              <div className="hecs-toggle-thumb"/>
+            </div>
+            <span style={{fontSize:"13px",color:hasHECS?"var(--brand)":"var(--muted)",fontWeight:500}}>
+              {hasHECS?"HECS enabled":"I have a HECS debt"}
+            </span>
+          </div>
         </div>
 
         {!hasHECS ? (
@@ -2785,7 +2822,7 @@ function CompanyTax({ invoices, expenses }) {
             <div className="frow">
               <div className="field">
                 <label>Current HECS-HELP Balance (optional)</label>
-                <input type="number" value={hecsBalance} onChange={e=>setHecsBalance(e.target.value)}
+                <input type="number" value={hecsBalance} onChange={e=>updateHECSBalance(e.target.value)}
                   placeholder="e.g. 28000" inputMode="decimal"/>
                 <div className="fhint">Find this in your myGov account → ATO → Loans</div>
               </div>
