@@ -323,11 +323,26 @@ const G = () => (
     .ab-feat{display:flex;align-items:center;gap:11px;font-size:13px;color:rgba(255,255,255,.58)}
     .ab-dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);flex-shrink:0}
     .ab-foot{font-size:10.5px;color:rgba(255,255,255,.2)}
-    .auth-mob-hd{display:none;background:var(--brand-dark);
-      padding:calc(18px + var(--safe-t)) 22px 22px;text-align:center}
-    .auth-mob-logo{font-family:var(--ff);font-size:24px;color:#fff;font-weight:800}
+    .auth-mob-hd{
+      display:none;
+      background:var(--brand-dark);
+      padding:calc(28px + var(--safe-t)) 28px 32px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .auth-mob-circle1{position:absolute;top:-60px;right:-60px;
+      width:200px;height:200px;border-radius:50%;
+      background:rgba(110,231,183,.07);pointer-events:none;}
+    .auth-mob-circle2{position:absolute;bottom:-40px;left:-40px;
+      width:140px;height:140px;border-radius:50%;
+      background:rgba(110,231,183,.05);pointer-events:none;}
+    .auth-mob-logo{font-family:var(--ff);font-size:30px;color:#fff;font-weight:800;letter-spacing:-.5px}
     .auth-mob-logo span{color:var(--emerald)}
-    .auth-mob-sub{font-size:11px;color:rgba(255,255,255,.4);font-style:italic;font-family:var(--ff);margin-top:3px}
+    .auth-mob-sub{font-size:12px;color:rgba(255,255,255,.45);font-style:italic;font-family:var(--ff);margin-top:5px}
+    .auth-mob-feats{display:flex;flex-direction:column;gap:7px;margin-top:18px;text-align:left}
+    .auth-mob-feat{display:flex;align-items:center;gap:9px;font-size:12px;color:rgba(255,255,255,.55)}
+    .auth-mob-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald);flex-shrink:0}
     .auth-panel{display:flex;flex-direction:column;justify-content:center;
       align-items:center;padding:44px 48px;background:var(--bg);overflow-y:auto}
     .auth-box{width:100%;max-width:400px}
@@ -417,7 +432,8 @@ const G = () => (
       .auth-shell{grid-template-columns:1fr}
       .auth-brand{display:none}
       .auth-mob-hd{display:block}
-      .auth-panel{padding:22px 18px calc(22px + var(--safe-b));justify-content:flex-start}
+      .auth-panel{padding:24px 20px calc(24px + var(--safe-b));justify-content:flex-start;background:var(--bg)}
+      .auth-box{padding-top:4px}
       .auth-title{font-size:21px}
       .bas-g4{grid-template-columns:1fr 1fr !important;gap:10px !important}
       .inv-wrap{padding:18px}
@@ -1142,26 +1158,48 @@ function AIInvoiceScanner({ onConfirm, onCancel }) {
    EXPENSES (with AI Scanner)
 ══════════════════════════════════════════════════════════════════════════ */
 function Expenses({ expenses, setExpenses, onSave, onDelete }) {
-  const [showAI,setShowAI]     = useState(false);
-  const [showForm,setShowForm] = useState(false);
-  const [form,setForm]         = useState({date:today(),category:"Software",desc:"",amount:"",gstIncluded:true});
+  const [showAI,setShowAI]         = useState(false);
+  const [showForm,setShowForm]     = useState(false);
+  const [form,setForm]             = useState({date:today(),category:"Software",desc:"",amount:"",gstIncluded:true,status:"pending"});
   const [filterCat,setFilterCat]   = useState("all");
   const [filterGST,setFilterGST]   = useState("all");
+  const [filterStatus,setFilterStatus] = useState("all");
+  const [editStatus,setEditStatus] = useState(null);
+
+  const EXP_STATUSES = ["pending","paid","reconciled","reimbursed"];
+  const EXP_STATUS_LABELS = {
+    pending:     {label:"Pending",     color:"var(--orange)", bg:"rgba(212,98,31,.1)"},
+    paid:        {label:"Paid",        color:"var(--green)",  bg:"rgba(26,122,73,.1)"},
+    reconciled:  {label:"Reconciled",  color:"var(--blue)",   bg:"rgba(37,99,168,.1)"},
+    reimbursed:  {label:"Reimbursed",  color:"var(--muted)",  bg:"var(--surface2)"},
+  };
+
+  const ExpBadge = ({s}) => {
+    const st = EXP_STATUS_LABELS[s] || EXP_STATUS_LABELS.pending;
+    return <span className="badge" style={{background:st.bg,color:st.color}}>{st.label}</span>;
+  };
+
+  const changeExpStatus = async (id, newStatus) => {
+    await supabase.from("expenses").update({status:newStatus}).eq("id",id);
+    setExpenses(p=>p.map(e=>e.id===id?{...e,status:newStatus}:e));
+    setEditStatus(null);
+  };
 
   const addExp = async (data) => {
-    const saved = await onSave(data);
+    const saved = await onSave({...data, status: data.status||"pending"});
     setExpenses(p=>[...p, saved]);
     setShowAI(false); setShowForm(false);
   };
   const addManual = () => {
     if (!form.desc||!form.amount) return;
     addExp({...form,amount:parseFloat(form.amount)});
-    setForm({date:today(),category:"Software",desc:"",amount:"",gstIncluded:true});
+    setForm({date:today(),category:"Software",desc:"",amount:"",gstIncluded:true,status:"pending"});
   };
 
   const filtered = expenses
     .filter(e => filterCat==="all" || e.category===filterCat)
-    .filter(e => filterGST==="all" || (filterGST==="gst" ? e.gstIncluded : !e.gstIncluded));
+    .filter(e => filterGST==="all" || (filterGST==="gst" ? e.gstIncluded : !e.gstIncluded))
+    .filter(e => filterStatus==="all" || (e.status||"pending")===filterStatus);
 
   const total  = filtered.reduce((a,e)=>a+e.amount,0);
   const totGST = filtered.filter(e=>e.gstIncluded).reduce((a,e)=>a+e.amount/11,0);
@@ -1189,6 +1227,11 @@ function Expenses({ expenses, setExpenses, onSave, onDelete }) {
 
       {/* Filter bar */}
       <div style={{display:"flex",gap:"8px",marginBottom:"16px",flexWrap:"wrap",alignItems:"center"}}>
+        <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}
+          style={{minHeight:"34px",fontSize:"12.5px",padding:"4px 10px",background:"var(--surface)",border:"1.5px solid var(--border)",borderRadius:"7px",color:"var(--text)",fontFamily:"var(--fb)"}}>
+          <option value="all">All Statuses ({expenses.length})</option>
+          {EXP_STATUSES.map(s=><option key={s} value={s}>{EXP_STATUS_LABELS[s].label} ({expenses.filter(e=>(e.status||"pending")===s).length})</option>)}
+        </select>
         <select value={filterCat} onChange={e=>setFilterCat(e.target.value)}
           style={{minHeight:"34px",fontSize:"12.5px",padding:"4px 10px",background:"var(--surface)",border:"1.5px solid var(--border)",borderRadius:"7px",color:"var(--text)",fontFamily:"var(--fb)"}}>
           <option value="all">All Categories</option>
@@ -1200,8 +1243,8 @@ function Expenses({ expenses, setExpenses, onSave, onDelete }) {
           <option value="gst">GST Included</option>
           <option value="nogst">No GST</option>
         </select>
-        {(filterCat!=="all"||filterGST!=="all") && (
-          <button className="btn btn-g btn-sm" onClick={()=>{setFilterCat("all");setFilterGST("all");}}>Clear filters</button>
+        {(filterCat!=="all"||filterGST!=="all"||filterStatus!=="all") && (
+          <button className="btn btn-g btn-sm" onClick={()=>{setFilterCat("all");setFilterGST("all");setFilterStatus("all");}}>Clear</button>
         )}
       </div>
 
@@ -1217,10 +1260,17 @@ function Expenses({ expenses, setExpenses, onSave, onDelete }) {
         <div className="card" style={{marginBottom:"18px"}}>
           <div className="sh2-title" style={{marginBottom:"15px"}}>Add Expense Manually</div>
           <div className="fstack">
-            <div className="frow3">
+            <div className="frow">
               <div className="field"><label>Date</label><input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))}/></div>
               <div className="field"><label>Category</label><select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))}>{CATS.map(c=><option key={c}>{c}</option>)}</select></div>
-              <div className="field"><label>GST</label><select value={form.gstIncluded?"yes":"no"} onChange={e=>setForm(f=>({...f,gstIncluded:e.target.value==="yes"}))}><option value="yes">GST Included</option><option value="no">No GST</option></select></div>
+            </div>
+            <div className="frow">
+              <div className="field"><label>Status</label>
+                <select value={form.status} onChange={e=>setForm(f=>({...f,status:e.target.value}))}>
+                  {EXP_STATUSES.map(s=><option key={s} value={s}>{EXP_STATUS_LABELS[s].label}</option>)}
+                </select>
+              </div>
+              <div className="field"><label>GST</label><select value={form.gstIncluded?"yes":"no"} onChange={e=>setForm(f=>({...f,gstIncluded:e.target.value==="yes"}))}><option value="yes">GST Included (1/11th)</option><option value="no">No GST / Exempt</option></select></div>
             </div>
             <div className="frow">
               <div className="field"><label>Description</label><input value={form.desc} onChange={e=>setForm(f=>({...f,desc:e.target.value}))} placeholder="Expense description"/></div>
@@ -1234,6 +1284,28 @@ function Expenses({ expenses, setExpenses, onSave, onDelete }) {
         </div>
       )}
 
+      {/* Status change modal */}
+      {editStatus && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.45)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}} onClick={()=>setEditStatus(null)}>
+          <div className="card" style={{maxWidth:"300px",width:"100%"}} onClick={ev=>ev.stopPropagation()}>
+            <div className="sh2-title" style={{marginBottom:"14px"}}>Change Expense Status</div>
+            <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+              {EXP_STATUSES.map(s=>{
+                const st=EXP_STATUS_LABELS[s];
+                return (
+                  <button key={s} className="btn btn-g"
+                    style={{justifyContent:"flex-start",borderColor:editStatus.current===s?st.color:"var(--border)",background:editStatus.current===s?st.bg:"transparent",color:editStatus.current===s?st.color:"var(--text)"}}
+                    onClick={()=>changeExpStatus(editStatus.id,s)}>
+                    {s==="paid"?"✓ ":s==="reconciled"?"⚖️ ":s==="reimbursed"?"↩️ ":"⏳ "}{st.label}
+                  </button>
+                );
+              })}
+            </div>
+            <button className="btn btn-g btn-blk" style={{marginTop:"12px"}} onClick={()=>setEditStatus(null)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
       {/* Expense list */}
       <div style={{display:"flex",flexDirection:"column",gap:"9px"}}>
         {filtered.length===0 && (
@@ -1243,16 +1315,23 @@ function Expenses({ expenses, setExpenses, onSave, onDelete }) {
         )}
         {[...filtered].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>{
           const g=e.gstIncluded?e.amount/11:0;
+          const expStatus=e.status||"pending";
+          const st=EXP_STATUS_LABELS[expStatus]||EXP_STATUS_LABELS.pending;
           return (
             <div key={e.id} className="icard">
               <div className="icard-top">
                 <div>
                   <div className="icard-name">{e.desc}</div>
-                  <div className="icard-sub">{fmtD(e.date)}</div>
+                  <div className="icard-sub">{fmtD(e.date)} · <span className="badge bg-br" style={{fontSize:"10.5px"}}>{e.category}</span></div>
                 </div>
-                <div style={{display:"flex",gap:"6px",alignItems:"center",flexWrap:"wrap",justifyContent:"flex-end"}}>
-                  <span className="badge bg-br">{e.category}</span>
-                  {e.gstIncluded && <span className="badge bg-b">GST incl.</span>}
+                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"4px"}}>
+                  <button style={{background:"none",border:"none",cursor:"pointer",padding:0}}
+                    onClick={()=>setEditStatus({id:e.id,current:expStatus})}
+                    title="Click to change status">
+                    <span className="badge" style={{background:st.bg,color:st.color}}>{st.label}</span>
+                    <span style={{fontSize:"9px",color:"var(--dim)",display:"block",textAlign:"center",marginTop:"2px"}}>edit</span>
+                  </button>
+                  {e.gstIncluded && <span className="badge bg-b" style={{fontSize:"10px"}}>GST incl.</span>}
                 </div>
               </div>
               <div className="icard-bot">
@@ -1478,8 +1557,15 @@ function SignIn({ onReg }) {
       <AuthBrand/>
       <div className="auth-panel">
         <div className="auth-mob-hd">
+          <div className="auth-mob-circle1"/>
+          <div className="auth-mob-circle2"/>
           <div className="auth-mob-logo">The Busy <span>Bookie</span></div>
           <div className="auth-mob-sub">Your Bookie, Your Business</div>
+          <div className="auth-mob-feats">
+            {["ATO-compliant invoices with ABN","Auto GST & BAS forecasting","AI receipt & invoice scanning","Works on iPhone, iPad & desktop"].map(f=>(
+              <div className="auth-mob-feat" key={f}><div className="auth-mob-dot"/>{f}</div>
+            ))}
+          </div>
         </div>
         <div className="auth-box">
           <div className="auth-title">Welcome back</div>
@@ -1594,8 +1680,15 @@ function Register({ onSI }) {
       <AuthBrand/>
       <div className="auth-panel">
         <div className="auth-mob-hd">
+          <div className="auth-mob-circle1"/>
+          <div className="auth-mob-circle2"/>
           <div className="auth-mob-logo">The Busy <span>Bookie</span></div>
           <div className="auth-mob-sub">Your Bookie, Your Business</div>
+          <div className="auth-mob-feats">
+            {["ATO-compliant invoices with ABN","Auto GST & BAS forecasting","AI receipt & invoice scanning","Works on iPhone, iPad & desktop"].map(f=>(
+              <div className="auth-mob-feat" key={f}><div className="auth-mob-dot"/>{f}</div>
+            ))}
+          </div>
         </div>
         <div className="auth-box">
           {step > 0 && <div className="pills">{Array.from({length:totalSteps-1},(_,i)=><div key={i} className={`pill ${i<step-1?"done":i===step-1?"active":""}`}/>)}</div>}
@@ -2230,39 +2323,54 @@ function PAYGWithholding() {
    COMPANY TAX ESTIMATE
 ══════════════════════════════════════════════════════════════════════════ */
 function CompanyTax({ invoices, expenses }) {
-  const [entityType, setEntityType] = useState("company_small"); // company_small | company_base | trust | sole_trader
-  const [otherIncome, setOtherIncome] = useState("");
+  const [entityType, setEntityType]         = useState("company_small");
+  const [otherIncome, setOtherIncome]       = useState("");
   const [otherDeductions, setOtherDeductions] = useState("");
-  const [dividends, setDividends] = useState("");
+  const [dividends, setDividends]           = useState("");
+  const [employmentIncome, setEmploymentIncome] = useState(""); // secondary job / PAYG employment
+  const [employerTaxWithheld, setEmployerTaxWithheld] = useState(""); // tax already withheld by employer
   const [fy, setFy] = useState(new Date().getMonth()>=6?new Date().getFullYear():new Date().getFullYear()-1);
 
   const paidRevenue  = invoices.filter(i=>i.status==="paid").reduce((s,i)=>s+ci(i).s,0);
   const totalExpense = expenses.reduce((s,e)=>s+(e.gstIncluded?e.amount-e.amount/11:e.amount),0);
-  const other  = parseFloat(otherIncome)||0;
-  const deduct = parseFloat(otherDeductions)||0;
-  const divIn  = parseFloat(dividends)||0;
+  const other   = parseFloat(otherIncome)||0;
+  const deduct  = parseFloat(otherDeductions)||0;
+  const divIn   = parseFloat(dividends)||0;
+  const empInc  = parseFloat(employmentIncome)||0;  // gross income from employer
+  const empTax  = parseFloat(employerTaxWithheld)||0; // tax already withheld
 
-  const grossIncome   = paidRevenue + other + divIn;
+  // Total income includes employment income from other job
+  const grossIncome   = paidRevenue + other + divIn + empInc;
   const totalDeduct   = totalExpense + deduct;
   const taxableIncome = Math.max(0, grossIncome - totalDeduct);
 
   const RATES = {
-    company_small:  {rate:0.25, label:"Small Business Company (25%)", note:"Applies to companies with aggregated turnover under $50M that are base rate entities", franking:0.25},
-    company_base:   {rate:0.30, label:"Standard Company (30%)", note:"Applies to companies that do not qualify for the small business rate", franking:0.30},
-    trust:          {rate:0.47, label:"Trust (top marginal rate est.)", note:"Trusts distribute income to beneficiaries — this is an estimate at top marginal rate", franking:0},
-    sole_trader:    {rate:null, label:"Sole Trader / Individual", note:"Uses individual tax brackets including Medicare levy", franking:0},
+    company_small: {rate:0.25, label:"Small Business Company (25%)", note:"Applies to companies with aggregated turnover under $50M that are base rate entities", franking:0.25},
+    company_base:  {rate:0.30, label:"Standard Company (30%)",       note:"Applies to companies that do not qualify for the small business rate", franking:0.30},
+    trust:         {rate:0.47, label:"Trust (top marginal rate est.)",note:"Trusts distribute income to beneficiaries — this is an estimate at top marginal rate", franking:0},
+    sole_trader:   {rate:null, label:"Sole Trader / Individual",      note:"Uses ATO individual tax brackets including 2% Medicare levy. Enter your other job's income below so tax is calculated on your total income — not just business income.", franking:0},
   };
 
   const rateInfo = RATES[entityType];
   let taxPayable = 0;
+  let taxOnEmploymentOnly = 0;
+
   if (entityType === "sole_trader") {
+    // Tax on TOTAL income (business + employment)
     taxPayable = paygWithMedicare(taxableIncome);
+    // Tax that would apply to employment income only (already withheld by employer)
+    taxOnEmploymentOnly = paygWithMedicare(empInc);
   } else {
     taxPayable = taxableIncome * (rateInfo.rate||0);
   }
 
-  const frankingCredits = divIn * (rateInfo.franking/(1-rateInfo.franking));
-  const quarterlyInstalment = taxPayable / 4;
+  // For sole trader: additional tax on top of what employer already withheld
+  const additionalTaxOwed = entityType === "sole_trader"
+    ? Math.max(0, taxPayable - empTax)
+    : taxPayable;
+
+  const frankingCredits    = divIn * (rateInfo.franking/(1-rateInfo.franking));
+  const quarterlyInstalment = additionalTaxOwed / 4;
 
   return (
     <div>
@@ -2302,14 +2410,41 @@ function CompanyTax({ invoices, expenses }) {
           <div className="sh2-title" style={{marginBottom:"14px"}}>Income</div>
           <div className="fstack">
             <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid var(--surface2)"}}>
-              <span style={{color:"var(--muted)",fontSize:"13px"}}>Revenue from paid invoices</span>
+              <span style={{color:"var(--muted)",fontSize:"13px"}}>Revenue from paid invoices (this business)</span>
               <span style={{fontWeight:600}}>{fmt(paidRevenue)}</span>
             </div>
-            <div className="field"><label>Other Income (AUD excl. GST)</label><input type="number" value={otherIncome} onChange={e=>setOtherIncome(e.target.value)} placeholder="0.00" inputMode="decimal"/></div>
+            {entityType==="sole_trader" && (
+              <>
+                <div style={{background:"rgba(37,99,168,.06)",border:"1px solid rgba(37,99,168,.15)",borderRadius:"8px",padding:"12px 14px",fontSize:"12.5px",color:"var(--blue)",lineHeight:1.6}}>
+                  💼 <strong>Secondary Employment Income</strong> — Enter your gross income from your other job so your total tax is calculated correctly. Without this, the estimate will be too low.
+                </div>
+                <div className="frow">
+                  <div className="field">
+                    <label>Gross Employment Income (other job)</label>
+                    <input type="number" value={employmentIncome} onChange={e=>setEmploymentIncome(e.target.value)} placeholder="0.00" inputMode="decimal"/>
+                    <div className="fhint">Annual gross salary / wages from your employer (before tax)</div>
+                  </div>
+                  <div className="field">
+                    <label>Tax Withheld by Employer</label>
+                    <input type="number" value={employerTaxWithheld} onChange={e=>setEmployerTaxWithheld(e.target.value)} placeholder="0.00" inputMode="decimal"/>
+                    <div className="fhint">From your payment summary or income statement in myGov</div>
+                  </div>
+                </div>
+                {empInc > 0 && (
+                  <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid var(--surface2)"}}>
+                    <span style={{color:"var(--muted)",fontSize:"13px"}}>Employment income included in total</span>
+                    <span style={{fontWeight:600,color:"var(--blue)"}}>{fmt(empInc)}</span>
+                  </div>
+                )}
+              </>
+            )}
+            <div className="field"><label>Other Income (interest, rental, etc. excl. GST)</label><input type="number" value={otherIncome} onChange={e=>setOtherIncome(e.target.value)} placeholder="0.00" inputMode="decimal"/></div>
             <div className="field"><label>Franked Dividends Received</label><input type="number" value={dividends} onChange={e=>setDividends(e.target.value)} placeholder="0.00" inputMode="decimal"/></div>
-            <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0",background:"var(--brand-dim)",borderRadius:"7px",padding:"10px 13px"}}>
-              <span style={{fontWeight:700}}>Total Gross Income</span>
-              <span style={{fontFamily:"var(--ff)",fontSize:"18px",fontWeight:700,color:"var(--brand)"}}>{fmt(grossIncome)}</span>
+            <div style={{background:"var(--brand-dim)",borderRadius:"7px",padding:"10px 13px"}}>
+              <div style={{display:"flex",justifyContent:"space-between"}}>
+                <span style={{fontWeight:700}}>Total Gross Income</span>
+                <span style={{fontFamily:"var(--ff)",fontSize:"18px",fontWeight:700,color:"var(--brand)"}}>{fmt(grossIncome)}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -2337,19 +2472,33 @@ function CompanyTax({ invoices, expenses }) {
         <div className="sh2-title" style={{marginBottom:"16px"}}>Tax Summary — FY{fy}/{fy+1}</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:"14px",marginBottom:"20px"}}>
           {[
-            {l:"Gross Income",    v:fmt(grossIncome),    c:""},
-            {l:"Total Deductions",v:fmt(totalDeduct),    c:""},
-            {l:"Taxable Income",  v:fmt(taxableIncome),  c:"brand"},
-            {l:"Tax Rate",        v:rateInfo.rate!=null?`${(rateInfo.rate*100)}%`:"Brackets", c:""},
-            {l:"Tax Payable",     v:fmt(taxPayable),     c:"r"},
-            {l:"Quarterly Instalment",v:fmt(quarterlyInstalment),c:"r"},
+            {l:"Gross Income",          v:fmt(grossIncome),             c:""},
+            {l:"Total Deductions",      v:fmt(totalDeduct),             c:""},
+            {l:"Taxable Income",        v:fmt(taxableIncome),           c:"brand"},
+            {l:"Tax Rate",             v:rateInfo.rate!=null?`${(rateInfo.rate*100)}%`:"Brackets", c:""},
+            {l:"Total Tax on Income",   v:fmt(taxPayable),              c:"r"},
+            {l:entityType==="sole_trader"&&empTax>0?"Less: Tax Already Withheld":"Quarterly Instalment",
+              v:entityType==="sole_trader"&&empTax>0?`(${fmt(empTax)})`:fmt(quarterlyInstalment), c:""},
+            ...(entityType==="sole_trader"&&empTax>0?[{l:"Additional Tax Owing", v:fmt(additionalTaxOwed), c:"r"}]:[]),
           ].map(s=>(
-            <div key={s.l} className="card card-xs" style={{boxShadow:"none",background:"var(--surface2)"}}>
+            <div key={s.l} className="card card-xs" style={{boxShadow:"none",background:s.l==="Additional Tax Owing"?"rgba(194,59,46,.06)":"var(--surface2)",border:s.l==="Additional Tax Owing"?"1px solid rgba(194,59,46,.2)":"none"}}>
               <div className="sl">{s.l}</div>
               <div className={`sv ${s.c}`} style={{fontSize:"18px"}}>{s.v}</div>
             </div>
           ))}
         </div>
+
+        {entityType==="sole_trader" && empInc > 0 && (
+          <div style={{background:"rgba(37,99,168,.06)",border:"1px solid rgba(37,99,168,.15)",borderRadius:"8px",padding:"13px 16px",fontSize:"13px",marginBottom:"16px",lineHeight:1.7}}>
+            <strong style={{color:"var(--blue)"}}>How this is calculated:</strong>
+            <div style={{color:"var(--muted)",marginTop:"6px"}}>
+              Your total taxable income is <strong style={{color:"var(--text)"}}>{fmt(taxableIncome)}</strong> (business + employment income minus deductions).
+              Tax on this total income is <strong style={{color:"var(--text)"}}>{fmt(taxPayable)}</strong>.
+              Your employer has already withheld <strong style={{color:"var(--text)"}}>{fmt(empTax)}</strong>.
+              You will owe an additional <strong style={{color:"var(--red)"}}>{fmt(additionalTaxOwed)}</strong> at tax time — set aside approximately <strong style={{color:"var(--red)"}}>{fmt(additionalTaxOwed/12)}/month</strong>.
+            </div>
+          </div>
+        )}
 
         {frankingCredits > 0 && (
           <div style={{background:"var(--brand-dim)",borderRadius:"8px",padding:"12px 14px",fontSize:"13px",color:"var(--brand)",marginBottom:"14px"}}>
@@ -2399,15 +2548,353 @@ function CompanyTax({ invoices, expenses }) {
 /* ══════════════════════════════════════════════════════════════════════════
    NAV CONFIG
 ══════════════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════════════
+   TAX PAYMENTS TRACKER
+══════════════════════════════════════════════════════════════════════════ */
+function TaxPayments({ invoices, expenses }) {
+  const [payments, setPayments] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("bb_tax_payments")||"[]"); } catch { return []; }
+  });
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({type:"GST",amount:"",datePaid:"",period:"",reference:"",notes:""});
+  const [confirm, setConfirm] = useState(null); // payment awaiting confirmation
+
+  const save = (p) => {
+    const updated = [...p];
+    localStorage.setItem("bb_tax_payments", JSON.stringify(updated));
+    return updated;
+  };
+
+  const addPayment = () => {
+    if (!form.type||!form.amount||!form.datePaid) return;
+    const np = [...payments, {...form, id:Date.now(), amount:parseFloat(form.amount), confirmedAt: new Date().toISOString()}];
+    setPayments(save(np));
+    setForm({type:"GST",amount:"",datePaid:"",period:"",reference:"",notes:""});
+    setShowForm(false);
+  };
+
+  const removePayment = (id) => {
+    const np = payments.filter(p=>p.id!==id);
+    setPayments(save(np));
+  };
+
+  // Calculate obligations from data
+  const mo = new Date().getMonth();
+  const yr = new Date().getFullYear();
+  const fy = mo>=6?yr:yr-1;
+  const allInv = invoices.filter(i=>i.status!=="draft");
+  const gstCollected = allInv.reduce((s,i)=>s+ci(i).g,0);
+  const itcTotal = expenses.filter(e=>e.gstIncluded).reduce((s,e)=>s+e.amount/11,0);
+  const netGST = Math.max(0, gstCollected-itcTotal);
+
+  // Next BAS due date
+  const nextBASLabel = mo>=6&&mo<=8?`28 Oct ${yr}`:mo>=9&&mo<=11?`28 Feb ${yr+1}`:mo>=0&&mo<=2?`28 Apr ${yr}`:`28 Jul ${yr}`;
+  const nextBASPeriod = mo>=6&&mo<=8?`Q1 FY${fy+1}`:mo>=9&&mo<=11?`Q2 FY${fy+1}`:mo>=0&&mo<=2?`Q3 FY${fy+1}`:`Q4 FY${fy+1}`;
+
+  // Days until due
+  const daysUntil = (dateStr) => {
+    try {
+      // Parse "28 Oct 2026" style dates
+      const d = new Date(dateStr);
+      if (isNaN(d)) return 999;
+      return Math.ceil((d - new Date()) / (1000 * 60 * 60 * 24));
+    } catch { return 999; }
+  };
+
+  // Check if a period has been paid
+  const isPaid = (type, period) => payments.some(p=>p.type===type&&p.period===period);
+  const getPaid = (type, period) => payments.find(p=>p.type===type&&p.period===period);
+
+  const OBLIGATIONS = [
+    {
+      type:"GST",
+      label:"GST — BAS Lodgement",
+      amount:netGST,
+      dueDate:nextBASLabel,
+      period:nextBASPeriod,
+      description:"Net GST payable to ATO based on current invoices and expenses.",
+      authority:"ATO",
+      lodgeVia:"ATO Business Portal or registered tax agent",
+    },
+    {
+      type:"PAYG",
+      label:"PAYG Withholding",
+      amount:0,
+      dueDate:nextBASLabel,
+      period:nextBASPeriod,
+      description:"Employee tax withheld — reported as W2 on your BAS. Amount from PAYG section.",
+      authority:"ATO",
+      lodgeVia:"ATO Business Portal — include in BAS",
+    },
+    {
+      type:"Company Tax Q1",
+      label:`Company Tax Instalment — Q1`,
+      amount:0,
+      dueDate:`28 Oct ${yr}`,
+      period:`Q1 FY${fy+1}`,
+      description:"Quarterly PAYG instalment for company income tax. Amount from Company Tax section.",
+      authority:"ATO",
+      lodgeVia:"ATO Business Portal",
+    },
+    {
+      type:"Company Tax Q2",
+      label:`Company Tax Instalment — Q2`,
+      amount:0,
+      dueDate:`28 Feb ${yr+1}`,
+      period:`Q2 FY${fy+1}`,
+      description:"Quarterly PAYG instalment for company income tax.",
+      authority:"ATO",
+      lodgeVia:"ATO Business Portal",
+    },
+    {
+      type:"NSW Payroll Tax",
+      label:"NSW Payroll Tax",
+      amount:0,
+      dueDate:`7th of each month`,
+      period:`Monthly`,
+      description:"If wages exceed $1.2M/year. Lodge and pay via Revenue NSW monthly.",
+      authority:"Revenue NSW",
+      lodgeVia:"revenue.nsw.gov.au",
+    },
+  ];
+
+  const TAX_TYPES = ["GST","PAYG","Company Tax Q1","Company Tax Q2","Company Tax Q3","Company Tax Q4","NSW Payroll Tax","FBT","Other"];
+
+  const urgencyColor = (dateStr) => {
+    if (dateStr.includes("month")) return "var(--muted)";
+    try {
+      const d = daysUntil(dateStr);
+      if (d < 0)  return "var(--red)";
+      if (d <= 14) return "var(--red)";
+      if (d <= 30) return "var(--orange)";
+      return "var(--green)";
+    } catch { return "var(--muted)"; }
+  };
+
+  const urgencyLabel = (dateStr) => {
+    if (dateStr.includes("month")) return "";
+    try {
+      const d = daysUntil(dateStr);
+      if (d < 0)  return "OVERDUE";
+      if (d === 0) return "DUE TODAY";
+      if (d <= 7)  return `${d}d left`;
+      if (d <= 30) return `${d} days`;
+      return "";
+    } catch { return ""; }
+  };
+
+  const totalPaid = payments.reduce((s,p)=>s+p.amount,0);
+  const totalOwed = OBLIGATIONS.filter(o=>!isPaid(o.type,o.period)&&o.amount>0).reduce((s,o)=>s+o.amount,0);
+
+  return (
+    <div>
+      <div className="ph">
+        <div>
+          <div className="ph-title">Tax Payments</div>
+          <div className="ph-sub">Track ATO and Revenue NSW obligations · Confirm when paid</div>
+        </div>
+        <button className="btn btn-p" onClick={()=>setShowForm(s=>!s)}>{Ic.plus} Record Payment</button>
+      </div>
+
+      {/* Summary */}
+      <div className="g3" style={{marginBottom:"20px"}}>
+        <div className="card card-xs">
+          <div className="sl">Outstanding Obligations</div>
+          <div className="sv r">{fmt(totalOwed)}</div>
+          <div className="ss">Estimated unpaid</div>
+        </div>
+        <div className="card card-xs">
+          <div className="sl">Paid This Year</div>
+          <div className="sv g">{fmt(totalPaid)}</div>
+          <div className="ss">{payments.length} payment{payments.length!==1?"s":""} recorded</div>
+        </div>
+        <div className="card card-xs">
+          <div className="sl">Next Due</div>
+          <div className="sv" style={{fontSize:"16px",color:urgencyColor(nextBASLabel)}}>{nextBASLabel}</div>
+          <div className="ss">BAS · {nextBASPeriod}</div>
+        </div>
+      </div>
+
+      {/* Record payment form */}
+      {showForm && (
+        <div className="card" style={{marginBottom:"18px"}}>
+          <div className="sh2-title" style={{marginBottom:"14px"}}>Record Tax Payment</div>
+          <div className="fstack">
+            <div className="frow">
+              <div className="field"><label>Tax Type</label>
+                <select value={form.type} onChange={e=>setForm(f=>({...f,type:e.target.value}))}>
+                  {TAX_TYPES.map(t=><option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="field"><label>Amount Paid (AUD)</label>
+                <input type="number" value={form.amount} onChange={e=>setForm(f=>({...f,amount:e.target.value}))} placeholder="0.00" inputMode="decimal"/>
+              </div>
+            </div>
+            <div className="frow">
+              <div className="field"><label>Date Paid</label>
+                <input type="date" value={form.datePaid} onChange={e=>setForm(f=>({...f,datePaid:e.target.value}))}/>
+              </div>
+              <div className="field"><label>Period (e.g. Q1 FY26)</label>
+                <input value={form.period} onChange={e=>setForm(f=>({...f,period:e.target.value}))} placeholder="Q1 FY26"/>
+              </div>
+            </div>
+            <div className="frow">
+              <div className="field"><label>Reference / Receipt No.</label>
+                <input value={form.reference} onChange={e=>setForm(f=>({...f,reference:e.target.value}))} placeholder="ATO payment reference"/>
+              </div>
+              <div className="field"><label>Notes</label>
+                <input value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} placeholder="Optional notes"/>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:"9px",flexWrap:"wrap"}}>
+              <button className="btn btn-p" onClick={addPayment}>{Ic.check} Confirm Payment</button>
+              <button className="btn btn-g" onClick={()=>setShowForm(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming obligations */}
+      <div className="card" style={{marginBottom:"18px"}}>
+        <div className="sh2-title" style={{marginBottom:"14px"}}>Upcoming Obligations</div>
+        <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+          {OBLIGATIONS.map((ob,i)=>{
+            const paid = isPaid(ob.type, ob.period);
+            const paidRec = getPaid(ob.type, ob.period);
+            const urg = urgencyColor(ob.dueDate);
+            const urgL = urgencyLabel(ob.dueDate);
+            return (
+              <div key={i} style={{
+                border:`1.5px solid ${paid?"var(--border)":urg==="var(--red)"?"rgba(194,59,46,.3)":urg==="var(--orange)"?"rgba(212,98,31,.2)":"var(--border)"}`,
+                borderRadius:"var(--r)",padding:"16px",
+                background:paid?"var(--surface)":urg==="var(--red)"?"rgba(194,59,46,.04)":"var(--surface)",
+                opacity:paid?0.7:1,
+              }}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:"12px",flexWrap:"wrap"}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px",flexWrap:"wrap"}}>
+                      <span style={{fontWeight:700,fontSize:"14px"}}>{ob.label}</span>
+                      {paid
+                        ? <span className="badge bg-g">✓ Paid</span>
+                        : urgL && <span className="badge" style={{background:urg==="var(--red)"?"rgba(194,59,46,.1)":"rgba(212,98,31,.1)",color:urg}}>{urgL}</span>
+                      }
+                    </div>
+                    <div style={{fontSize:"12.5px",color:"var(--muted)",marginBottom:"6px"}}>{ob.description}</div>
+                    <div style={{display:"flex",gap:"16px",fontSize:"12px",flexWrap:"wrap"}}>
+                      <span style={{color:"var(--muted)"}}>Due: <strong style={{color:paid?"var(--muted)":urg}}>{ob.dueDate}</strong></span>
+                      <span style={{color:"var(--muted)"}}>Period: <strong style={{color:"var(--text)"}}>{ob.period}</strong></span>
+                      <span style={{color:"var(--muted)"}}>Via: {ob.authority}</span>
+                    </div>
+                    {paid && paidRec && (
+                      <div style={{marginTop:"8px",fontSize:"12px",color:"var(--green)",background:"rgba(26,122,73,.06)",padding:"6px 10px",borderRadius:"6px"}}>
+                        ✓ Paid {fmt(paidRec.amount)} on {fmtD(paidRec.datePaid)}{paidRec.reference?` · Ref: ${paidRec.reference}`:""}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    {ob.amount>0 && (
+                      <div style={{fontFamily:"var(--ff)",fontSize:"20px",fontWeight:700,color:paid?"var(--muted)":urg,marginBottom:"6px"}}>
+                        {fmt(ob.amount)}
+                      </div>
+                    )}
+                    {!paid ? (
+                      <button className="btn btn-p btn-sm"
+                        onClick={()=>setConfirm(ob)}>
+                        {Ic.check} Mark Paid
+                      </button>
+                    ) : (
+                      <button className="btn btn-d btn-sm" onClick={()=>removePayment(paidRec.id)}>
+                        Undo
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Payment history */}
+      {payments.length > 0 && (
+        <div className="card">
+          <div className="sh2-title" style={{marginBottom:"14px"}}>Payment History</div>
+          <div className="tscroll">
+            <table>
+              <thead><tr><th>Date Paid</th><th>Type</th><th>Period</th><th>Amount</th><th>Reference</th><th>Notes</th><th></th></tr></thead>
+              <tbody>
+                {[...payments].sort((a,b)=>new Date(b.datePaid)-new Date(a.datePaid)).map(p=>(
+                  <tr key={p.id}>
+                    <td style={{color:"var(--muted)",fontSize:"12.5px"}}>{fmtD(p.datePaid)}</td>
+                    <td style={{fontWeight:500}}>{p.type}</td>
+                    <td style={{color:"var(--muted)",fontSize:"12.5px"}}>{p.period}</td>
+                    <td className="tmono" style={{color:"var(--green)",fontWeight:700}}>{fmt(p.amount)}</td>
+                    <td style={{fontSize:"12.5px",color:"var(--muted)"}}>{p.reference||"—"}</td>
+                    <td style={{fontSize:"12.5px",color:"var(--muted)"}}>{p.notes||"—"}</td>
+                    <td><button className="btn btn-d btn-sm" onClick={()=>removePayment(p.id)}>{Ic.trash}</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Quick confirm modal */}
+      {confirm && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}} onClick={()=>setConfirm(null)}>
+          <div className="card" style={{maxWidth:"380px",width:"100%"}} onClick={ev=>ev.stopPropagation()}>
+            <div style={{fontSize:"40px",textAlign:"center",marginBottom:"12px"}}>✅</div>
+            <div className="sh2-title" style={{textAlign:"center",marginBottom:"8px"}}>Confirm Tax Payment</div>
+            <div style={{fontSize:"13px",color:"var(--muted)",textAlign:"center",marginBottom:"20px"}}>
+              Mark <strong style={{color:"var(--text)"}}>{confirm.label}</strong> for <strong style={{color:"var(--text)"}}>{confirm.period}</strong> as paid?
+            </div>
+            <div className="fstack">
+              <div className="frow">
+                <div className="field"><label>Amount Paid</label>
+                  <input type="number" defaultValue={confirm.amount||""} id="cp-amount" placeholder="0.00" inputMode="decimal"/>
+                </div>
+                <div className="field"><label>Date Paid</label>
+                  <input type="date" defaultValue={today()} id="cp-date"/>
+                </div>
+              </div>
+              <div className="field"><label>Reference / Receipt No. (optional)</label>
+                <input id="cp-ref" placeholder="ATO payment reference"/>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:"9px",marginTop:"16px"}}>
+              <button className="btn btn-p btn-blk" onClick={()=>{
+                const amt = parseFloat(document.getElementById("cp-amount")?.value)||0;
+                const dt  = document.getElementById("cp-date")?.value||today();
+                const ref = document.getElementById("cp-ref")?.value||"";
+                const np = [...payments, {id:Date.now(),type:confirm.type,amount:amt,datePaid:dt,period:confirm.period,reference:ref,notes:"",confirmedAt:new Date().toISOString()}];
+                setPayments(save(np));
+                setConfirm(null);
+              }}>
+                {Ic.check} Confirm Payment
+              </button>
+              <button className="btn btn-g" onClick={()=>setConfirm(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   NAV CONFIG
+══════════════════════════════════════════════════════════════════════════ */
 const PAGES = [
-  {id:"dashboard",label:"Dashboard",   icon:"dash",    section:"Main"},
-  {id:"invoices", label:"Invoices",    icon:"inv",     section:"Main"},
-  {id:"expenses", label:"Expenses",    icon:"exp",     section:"Main"},
-  {id:"gst",      label:"GST Tracker", icon:"gst",     section:"Tax"},
-  {id:"bas",      label:"BAS Forecast",icon:"bas",     section:"Tax"},
-  {id:"payg",     label:"PAYG & Payroll",icon:"payg",  section:"Tax"},
-  {id:"comptax",  label:"Company Tax", icon:"tax",     section:"Tax"},
-  {id:"settings", label:"Settings",    icon:"settings",section:"Account"},
+  {id:"dashboard",label:"Dashboard",    icon:"dash",    section:"Main"},
+  {id:"invoices", label:"Invoices",     icon:"inv",     section:"Main"},
+  {id:"expenses", label:"Expenses",     icon:"exp",     section:"Main"},
+  {id:"gst",      label:"GST Tracker",  icon:"gst",     section:"Tax"},
+  {id:"bas",      label:"BAS Forecast", icon:"bas",     section:"Tax"},
+  {id:"payg",     label:"PAYG & Payroll",icon:"payg",   section:"Tax"},
+  {id:"comptax",  label:"Company Tax",  icon:"tax",     section:"Tax"},
+  {id:"taxpay",   label:"Tax Payments", icon:"tax",     section:"Tax"},
+  {id:"settings", label:"Settings",     icon:"settings",section:"Account"},
 ];
 const BOT = [
   {id:"dashboard",label:"Home",     icon:"dash"},
@@ -2452,7 +2939,8 @@ export default function App() {
     })));
     if (expRes.data) setExpenses(expRes.data.map(r => ({
       id: r.id, date: r.date, category: r.category,
-      desc: r.description, amount: Number(r.amount), gstIncluded: r.gst_included,
+      desc: r.description, amount: Number(r.amount),
+      gstIncluded: r.gst_included, status: r.status||"pending",
     })));
   };
 
@@ -2468,7 +2956,8 @@ export default function App() {
     })));
     if (expRes.data) setClientExpenses(expRes.data.map(r => ({
       id: r.id, date: r.date, category: r.category,
-      desc: r.description, amount: Number(r.amount), gstIncluded: r.gst_included,
+      desc: r.description, amount: Number(r.amount),
+      gstIncluded: r.gst_included, status: r.status||"pending",
     })));
   };
 
@@ -2486,7 +2975,8 @@ export default function App() {
   const saveExpense = async (exp, userId) => {
     const { data, error } = await supabase.from("expenses").insert({
       user_id: userId, date: exp.date, category: exp.category,
-      description: exp.desc, amount: exp.amount, gst_included: exp.gstIncluded,
+      description: exp.desc, amount: exp.amount,
+      gst_included: exp.gstIncluded, status: exp.status||"pending",
     }).select().single();
     if (error) { console.error(error); return exp; }
     return { ...exp, id: data.id };
@@ -2627,6 +3117,7 @@ export default function App() {
         {page==="bas"      && <BASForecasting invoices={displayInvoices} expenses={displayExpenses}/>}
         {page==="payg"     && <PAYGWithholding/>}
         {page==="comptax"  && <CompanyTax invoices={displayInvoices} expenses={displayExpenses}/>}
+        {page==="taxpay"   && <TaxPayments invoices={displayInvoices} expenses={displayExpenses}/>}
         {page==="settings"  && !isAccountantView && <Settings user={user} profile={profile}/>}
         {page==="settings"  && isAccountantView  && (
           <div className="card" style={{textAlign:"center",padding:"32px"}}>
