@@ -2597,38 +2597,56 @@ function AccountantPortal({ user, profile, onViewClient, onSignOut }) {
 
   const loadClients = async () => {
     setLoading(true);
-    // Load accepted relationships
+    // Step 1: get the relationship rows
     const { data: rels } = await supabase
       .from("accountant_clients")
-      .select("*, client:client_id(id,business_name,abn,state,email,name)")
+      .select("id, client_id, status")
       .eq("accountant_id", user.id)
-      .eq("status","active");
+      .eq("status", "active");
 
-    // Load pending requests sent to this accountant
     const { data: pends } = await supabase
       .from("accountant_clients")
-      .select("*, client:client_id(id,business_name,abn,email,name)")
+      .select("id, client_id, status")
       .eq("accountant_id", user.id)
-      .eq("status","pending");
+      .eq("status", "pending");
 
-    if (rels) {
-      setClients(rels.map(r=>r.client).filter(Boolean));
+    if (rels && rels.length > 0) {
+      // Step 2: fetch client profiles separately
+      const clientIds = rels.map(r => r.client_id);
+      const { data: clientProfiles } = await supabase
+        .from("profiles")
+        .select("id, business_name, abn, state, email, name")
+        .in("id", clientIds);
+
+      const profiles = clientProfiles || [];
+      setClients(profiles);
+
       // Load quick stats for each client
-      rels.forEach(async r => {
-        if (!r.client) return;
-        const [inv,exp] = await Promise.all([
-          supabase.from("invoices").select("id,status,items").eq("user_id",r.client.id),
-          supabase.from("expenses").select("amount,gst_included").eq("user_id",r.client.id),
+      profiles.forEach(async client => {
+        const [inv, exp] = await Promise.all([
+          supabase.from("invoices").select("id,status,items").eq("user_id", client.id),
+          supabase.from("expenses").select("amount,gst_included").eq("user_id", client.id),
         ]);
         const gstOwed = (inv.data||[]).filter(i=>i.status==="paid").reduce((s,i)=>{
           const g=(i.items||[]).reduce((a,it)=>a+(it.gst?it.qty*it.unit*0.1:0),0);
           return s+g;
         },0);
         const itc = (exp.data||[]).filter(e=>e.gst_included).reduce((s,e)=>s+e.amount/11,0);
-        setClientData(d=>({...d,[r.client.id]:{invoices:(inv.data||[]).length,netGST:gstOwed-itc}}));
+        setClientData(d=>({...d,[client.id]:{invoices:(inv.data||[]).length,netGST:gstOwed-itc}}));
       });
+    } else {
+      setClients([]);
     }
-    if (pends) setPending(pends.map(r=>r.client).filter(Boolean));
+
+    // Handle pending — fetch their profiles too
+    if (pends && pends.length > 0) {
+      const pendIds = pends.map(r => r.client_id);
+      const { data: pendProfiles } = await supabase
+        .from("profiles").select("id,business_name,abn,email,name").in("id", pendIds);
+      setPending(pendProfiles || []);
+    } else {
+      setPending([]);
+    }
     setLoading(false);
   };
 
@@ -2646,13 +2664,12 @@ function AccountantPortal({ user, profile, onViewClient, onSignOut }) {
 
   const sendInvite = async () => {
     if (!inviteEmail) return;
-    // Find client by email
     const { data: clientProf } = await supabase
-      .from("profiles").select("id,business_name").eq("email",inviteEmail.toLowerCase()).eq("role","client").single();
-    if (!clientProf) { setInviteMsg("No client account found with that email."); return; }
-    // Check not already linked
+      .from("profiles").select("id,business_name,role").eq("email",inviteEmail.toLowerCase()).maybeSingle();
+    if (!clientProf) { setInviteMsg("No account found with that email."); return; }
+    if (clientProf.role === "accountant") { setInviteMsg("That email belongs to an accountant account, not a client."); return; }
     const { data: existing } = await supabase.from("accountant_clients")
-      .select("id").eq("accountant_id",user.id).eq("client_id",clientProf.id).single();
+      .select("id").eq("accountant_id",user.id).eq("client_id",clientProf.id).maybeSingle();
     if (existing) { setInviteMsg("Already linked with this client."); return; }
     await supabase.from("accountant_clients").insert({
       accountant_id: user.id, client_id: clientProf.id, status:"active"
@@ -2838,16 +2855,18 @@ function Settings({ user, profile, signOut, onTour }) {
 
   const inviteAccountant = async () => {
     if (!inviteEmail) return;
-    const { data: acctProf } = await supabase
+    const { data: acctProf, error: profErr } = await supabase
       .from("profiles").select("id,name,business_name,role").eq("email",inviteEmail.toLowerCase()).maybeSingle();
+    if (profErr) { setMsg(`Lookup error: ${profErr.message}`); return; }
     if (!acctProf) { setMsg("No account found with that email. They need to register on The Busy Bookie first."); return; }
     if (acctProf.role !== "accountant") { setMsg("That email is registered as a business owner, not an accountant. They need to register an accountant account first."); return; }
     const { data: existing } = await supabase.from("accountant_clients")
       .select("id,status").eq("accountant_id",acctProf.id).eq("client_id",user.id).maybeSingle();
     if (existing) { setMsg(`Already linked with ${acctProf.name||acctProf.business_name}.`); return; }
-    await supabase.from("accountant_clients").insert({
+    const { error: insertErr } = await supabase.from("accountant_clients").insert({
       accountant_id: acctProf.id, client_id: user.id, status:"active"
     });
+    if (insertErr) { setMsg(`Link error: ${insertErr.message}`); return; }
     setMsg(`✓ ${acctProf.name||acctProf.business_name} has been linked to your account.`);
     setInviteEmail("");
     loadAccountants();
