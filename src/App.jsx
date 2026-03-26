@@ -605,7 +605,7 @@ function AIScanner({ onConfirm, onCancel }) {
             { type:"text",  text:`You are an Australian bookkeeping assistant. Analyse this receipt or invoice image and extract expense details. Reply ONLY with valid JSON — no explanation, no markdown. Format:\n{"description":"...","amount":0.00,"date":"YYYY-MM-DD","category":"${CATS.join("|")}","gstIncluded":true|false,"gstAmount":0.00,"vendor":"...","note":"one sentence about this expense and why you categorised it this way"}` }
           ];
 
-      const resp = await fetch("/api/scan", {
+      const resp = await fetch("/.netlify/functions/scan", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({ messages:[{ role:"user", content }] })
@@ -820,7 +820,7 @@ function Chatbot({ user }) {
         .filter(m => m.role !== "bot" || messages.indexOf(m) > 0)
         .map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
 
-      const resp = await fetch("/.netlify/functions/chat", {
+      const resp = await fetch("/.netlify/functions/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1315,7 +1315,7 @@ function AIInvoiceScanner({ onConfirm, onCancel }) {
       const content = isPDF
         ? [{ type:"document", source:{ type:"base64", media_type:"application/pdf", data:b64 } }, { type:"text", text:prompt }]
         : [{ type:"image", source:{ type:"base64", media_type:file.type, data:b64 } }, { type:"text", text:prompt }];
-      const resp = await fetch("/api/scan", {
+      const resp = await fetch("/.netlify/functions/scan", {
         method:"POST", headers:{"Content-Type":"application/json"},
         body:JSON.stringify({ messages:[{ role:"user", content }] })
       });
