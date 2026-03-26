@@ -1311,20 +1311,89 @@ function Invoices({ invoices, setInvoices, biz, abn, onSave, onDelete, onPaid })
 
   /* Invoice preview */
   if (view==="preview" && prev) {
-    const c=ci(prev);
+    const c = ci(prev);
+    const abnDisplay = abn ? `ABN ${abn}` : "";
+
+    const printInvoice = () => {
+      const rows = (prev.items||[]).map(it=>`
+        <tr>
+          <td>${it.desc||""}</td>
+          <td style="text-align:center">${it.qty}</td>
+          <td style="text-align:right">$${Number(it.unit||0).toFixed(2)}</td>
+          <td style="text-align:center">${it.gst?"10%":"—"}</td>
+          <td style="text-align:right">$${(Number(it.qty||0)*Number(it.unit||0)).toFixed(2)}</td>
+        </tr>`).join("");
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/>
+        <title>Invoice ${prev.number}</title>
+        <style>
+          *{margin:0;padding:0;box-sizing:border-box}
+          body{font-family:Arial,sans-serif;font-size:11px;color:#1a1714;padding:30px;max-width:700px;margin:0 auto}
+          .hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #124d34}
+          .co{font-size:20px;font-weight:800;color:#124d34}
+          .tag{font-size:11px;color:#888;margin-top:2px}
+          .lbl{font-size:18px;font-weight:800;color:#124d34;text-align:right}
+          .meta{font-size:11px;color:#555;text-align:right;margin-top:3px}
+          .bill-label{font-size:9.5px;color:#888;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+          .bill-name{font-size:15px;font-weight:700}
+          table{width:100%;border-collapse:collapse;margin:20px 0}
+          th{background:#124d34;color:#fff;padding:7px 9px;font-size:10.5px;text-align:left}
+          td{padding:7px 9px;border-bottom:1px solid #e8e2d9;font-size:11px}
+          .totals{max-width:240px;margin-left:auto}
+          .tr-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid #e8e2d9}
+          .tr-row.fin{font-weight:800;font-size:14px;border-bottom:none;margin-top:4px;padding-top:8px}
+          .notes{background:#f9f8f6;padding:11px;border-radius:6px;font-size:11px;color:#555;margin-top:14px}
+          .footer{margin-top:28px;font-size:10px;color:#aaa;text-align:center;border-top:1px solid #e8e2d9;padding-top:10px}
+          @media print{body{padding:10px}}
+        </style></head><body>
+        <div class="hd">
+          <div>
+            <div class="co">${biz||"The Busy Bookie"}</div>
+            <div class="tag">Your Bookie, Your Business</div>
+            ${abn?`<div style="font-size:11px;color:#888;margin-top:4px">ABN ${abn}</div>`:""}
+          </div>
+          <div>
+            <div class="lbl">TAX INVOICE</div>
+            <div class="meta">${prev.number}</div>
+            <div class="meta">Date: ${fmtD(prev.date)}</div>
+            <div class="meta">Due: ${fmtD(prev.due)}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:18px">
+          <div class="bill-label">Bill To</div>
+          <div class="bill-name">${prev.client||""}</div>
+          ${prev.abn?`<div style="font-size:11px;color:#666">ABN ${prev.abn}</div>`:""}
+          ${prev.address?`<div style="font-size:11px;color:#666">${prev.address}</div>`:""}
+        </div>
+        <table>
+          <thead><tr><th style="width:44%">Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Unit Price</th><th style="text-align:center">GST</th><th style="text-align:right">Amount</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="totals">
+          <div class="tr-row"><span>Subtotal (excl. GST)</span><span>$${c.s.toFixed(2)}</span></div>
+          <div class="tr-row"><span>GST (10%)</span><span>$${c.g.toFixed(2)}</span></div>
+          <div class="tr-row fin"><span>Total AUD</span><span>$${c.t.toFixed(2)}</span></div>
+        </div>
+        ${prev.notes?`<div class="notes"><strong>Notes:</strong> ${prev.notes}</div>`:""}
+        <div class="footer">Payment due ${fmtD(prev.due)} · ABN ${abn||""} · busybookie.com.au · Valid tax invoice for GST purposes</div>
+        <script>window.onload=()=>{window.print()}</script>
+        </body></html>`;
+      const win = window.open("","_blank");
+      win.document.write(html);
+      win.document.close();
+    };
+
     return (
       <div>
         <div style={{display:"flex",gap:"9px",marginBottom:"18px",flexWrap:"wrap"}}>
           <button className="btn btn-g" onClick={()=>setView("list")}>{Ic.back} Back</button>
-          <button className="btn btn-p">{Ic.dl} Print / Export</button>
+          <button className="btn btn-p" onClick={printInvoice}>{Ic.dl} Print / Save PDF</button>
         </div>
         <div className="inv-wrap">
           <div className="inv-hd">
             <div>
-              <div className="inv-co">The Busy Bookie</div>
+              <div className="inv-co">{biz||"The Busy Bookie"}</div>
               <div className="inv-tag">Your Bookie, Your Business</div>
-              <div style={{fontSize:"11.5px",color:"#888",marginTop:"6px"}}>On behalf of: <strong>{biz}</strong></div>
-              <div style={{fontSize:"11.5px",color:"#888"}}>{abnDisplay}</div>
+              {abnDisplay && <div style={{fontSize:"11.5px",color:"#888",marginTop:"6px"}}>{abnDisplay}</div>}
             </div>
             <div style={{textAlign:"right"}}>
               <div className="inv-lbl">TAX INVOICE</div>
@@ -1343,11 +1412,13 @@ function Invoices({ invoices, setInvoices, biz, abn, onSave, onDelete, onPaid })
             <table style={{minWidth:"unset"}}>
               <thead><tr><th style={{width:"44%"}}>Description</th><th>Qty</th><th>Unit</th><th>GST</th><th style={{textAlign:"right"}}>Amount</th></tr></thead>
               <tbody>
-                {prev.items.map((it,i)=>(
+                {(prev.items||[]).map((it,i)=>(
                   <tr key={i}>
-                    <td>{it.desc}</td><td>{it.qty}</td><td>{fmt(it.unit)}</td>
+                    <td>{it.desc}</td>
+                    <td>{it.qty}</td>
+                    <td>{fmt(Number(it.unit)||0)}</td>
                     <td>{it.gst?"10%":"—"}</td>
-                    <td style={{textAlign:"right"}}>{fmt(it.qty*it.unit)}</td>
+                    <td style={{textAlign:"right"}}>{fmt((Number(it.qty)||0)*(Number(it.unit)||0))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1359,7 +1430,7 @@ function Invoices({ invoices, setInvoices, biz, abn, onSave, onDelete, onPaid })
             <div className="inv-tr fin"><span>Total AUD</span><span>{fmt(c.t)}</span></div>
           </div>
           {prev.notes && <div style={{marginTop:"14px",fontSize:"11.5px",color:"#555",background:"#f9f8f6",padding:"11px",borderRadius:"6px"}}><strong>Notes:</strong> {prev.notes}</div>}
-          <div className="inv-ft">Payment due {fmtD(prev.due)}. Valid tax invoice for GST purposes. ABN {abn}. busybookie.com.au</div>
+          <div className="inv-ft">Payment due {fmtD(prev.due)}. Valid tax invoice for GST purposes.{abn?` ABN ${abn}.`:""} busybookie.com.au</div>
         </div>
       </div>
     );
