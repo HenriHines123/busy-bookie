@@ -737,69 +737,87 @@ function AIScanner({ onConfirm, onCancel }) {
 /* ─── Elephant Mascot ────────────────────────────────────────────────────── */
 const Elephant = ({size=38}) => {
   const s = size;
-  const r = s / 200;
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210" width={s} height={s*1.05} style={{flexShrink:0}}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 230" width={s} height={s*1.15} style={{flexShrink:0}}>
       {/* Shadow */}
-      <ellipse cx="100" cy="202" rx="55" ry="7" fill="#3a6a94" opacity="0.15"/>
-      {/* Back legs */}
-      <rect x="68" y="158" width="24" height="38" rx="12" fill="#3a6a94"/>
-      <rect x="108" y="158" width="24" height="38" rx="12" fill="#3a6a94"/>
-      {/* Body */}
-      <ellipse cx="100" cy="158" rx="55" ry="46" fill="#5b8db8"/>
-      <ellipse cx="100" cy="162" rx="34" ry="29" fill="#89b8d9" opacity="0.35"/>
-      {/* Tail */}
-      <path d="M153 138 Q166 124 163 112 Q161 105 166 99" fill="none" stroke="#3a6a94" strokeWidth="3.5" strokeLinecap="round"/>
-      <circle cx="166" cy="97" r="4" fill="#3a6a94"/>
-      {/* Ears */}
-      <ellipse cx="56" cy="98" rx="28" ry="36" fill="#3a6a94"/>
-      <ellipse cx="60" cy="100" rx="18" ry="25" fill="#a8cfe8"/>
-      <ellipse cx="144" cy="98" rx="28" ry="36" fill="#3a6a94"/>
-      <ellipse cx="140" cy="100" rx="18" ry="25" fill="#a8cfe8"/>
-      {/* Head */}
-      <ellipse cx="100" cy="98" rx="50" ry="49" fill="#5b8db8"/>
-      <ellipse cx="90" cy="80" rx="24" ry="20" fill="#89b8d9" opacity="0.4"/>
-      {/* Trunk */}
-      <path d="M76 132 Q60 146 57 166 Q55 180 63 190 Q68 196 74 192 Q80 188 77 176 Q72 162 80 150 Q90 138 96 132" fill="#3a6a94" stroke="#2a5a84" strokeWidth="0.5"/>
-      <ellipse cx="65" cy="192" rx="9" ry="6" fill="#5b8db8"/>
-      <path d="M60 162 Q53 165 56 170" fill="none" stroke="#2a5a84" strokeWidth="1.2" strokeLinecap="round"/>
-      <path d="M58 176 Q51 179 54 184" fill="none" stroke="#2a5a84" strokeWidth="1.2" strokeLinecap="round"/>
-      {/* Tusks */}
-      <path d="M83 132 Q72 142 68 150 Q64 158 70 162 Q76 164 80 156 Q86 144 92 133 Z" fill="#f0e8d0" stroke="#d4c9a8" strokeWidth="0.8"/>
-      <path d="M116 132 Q128 142 132 150 Q136 158 130 162 Q124 164 120 156 Q114 144 108 133 Z" fill="#f0e8d0" stroke="#d4c9a8" strokeWidth="0.8"/>
-      {/* Front legs */}
-      <rect x="76" y="186" width="24" height="18" rx="12" fill="#3a6a94"/>
-      <rect x="100" y="186" width="24" height="18" rx="12" fill="#3a6a94"/>
-      {/* Eyes */}
-      <ellipse cx="85" cy="88" rx="12" ry="13" fill="#f5f5f0"/>
-      <ellipse cx="115" cy="88" rx="12" ry="13" fill="#f5f5f0"/>
-      <ellipse cx="87" cy="89" rx="8" ry="9" fill="#1a3a5c"/>
-      <ellipse cx="117" cy="89" rx="8" ry="9" fill="#1a3a5c"/>
-      <ellipse cx="88" cy="90" rx="5" ry="5.5" fill="#0a1520"/>
-      <ellipse cx="118" cy="90" rx="5" ry="5.5" fill="#0a1520"/>
-      <circle cx="91" cy="86" r="2.5" fill="white"/>
-      <circle cx="121" cy="86" r="2.5" fill="white"/>
-      {/* Glasses lens */}
-      <rect x="74" y="80" width="24" height="17" rx="6" fill="#c8e8ff" opacity="0.28"/>
-      <rect x="102" y="80" width="24" height="17" rx="6" fill="#c8e8ff" opacity="0.28"/>
-      {/* Glasses frames */}
-      <rect x="74" y="80" width="24" height="17" rx="6" fill="none" stroke="#1a2840" strokeWidth="1.8"/>
-      <rect x="102" y="80" width="24" height="17" rx="6" fill="none" stroke="#1a2840" strokeWidth="1.8"/>
-      <line x1="98" y1="88" x2="102" y2="88" stroke="#1a2840" strokeWidth="1.8"/>
-      <path d="M74 88 Q62 88 55 84" fill="none" stroke="#1a2840" strokeWidth="1.8" strokeLinecap="round"/>
-      <path d="M126 88 Q138 88 145 84" fill="none" stroke="#1a2840" strokeWidth="1.8" strokeLinecap="round"/>
-      {/* Blush */}
-      <ellipse cx="72" cy="106" rx="10" ry="6" fill="#e87070" opacity="0.3"/>
-      <ellipse cx="128" cy="106" rx="10" ry="6" fill="#e87070" opacity="0.3"/>
-      {/* Smile */}
-      <path d="M88 116 Q100 126 112 116" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round"/>
-      {/* Eyebrows */}
-      <path d="M75 74 Q85 68 97 72" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round"/>
-      <path d="M103 72 Q115 68 125 74" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round"/>
-      {/* Bowtie */}
-      <path d="M88 148 L100 154 L112 148 L100 152 Z" fill="#1a3050"/>
-      <path d="M88 160 L100 154 L112 160 L100 156 Z" fill="#1a3050"/>
-      <ellipse cx="100" cy="154" rx="5" ry="5" fill="#2a5080"/>
+      <ellipse cx="100" cy="224" rx="52" ry="6" fill="#2a5a8a" opacity="0.18"/>
+      {/* ── TROUSERS ── */}
+      <rect x="72" y="172" width="24" height="46" rx="12" fill="#2d4a78"/>
+      <rect x="104" y="172" width="24" height="46" rx="12" fill="#2d4a78"/>
+      {/* Shoes */}
+      <ellipse cx="84" cy="218" rx="16" ry="8" fill="#6b3e26"/>
+      <ellipse cx="116" cy="218" rx="16" ry="8" fill="#6b3e26"/>
+      {/* ── BODY / JACKET ── */}
+      <ellipse cx="100" cy="158" rx="48" ry="38" fill="#e8eef6"/>
+      {/* Jacket shading */}
+      <ellipse cx="100" cy="162" rx="28" ry="22" fill="white" opacity="0.5"/>
+      {/* Lapels */}
+      <polygon points="100,128 84,144 84,172 100,165" fill="#d8e2ee"/>
+      <polygon points="100,128 116,144 116,172 100,165" fill="#d8e2ee"/>
+      {/* Shirt white */}
+      <polygon points="93,128 100,148 107,128 104,122 96,122" fill="white"/>
+      {/* Tie - blue */}
+      <polygon points="100,130 96,148 100,168 104,148" fill="#2d4a78"/>
+      <polygon points="97,130 100,140 103,130 101,126 99,126" fill="#1e3258"/>
+      {/* Jacket buttons */}
+      <circle cx="100" cy="154" r="2.5" fill="#b8c8d8"/>
+      <circle cx="100" cy="163" r="2.5" fill="#b8c8d8"/>
+      {/* ── ARMS ── */}
+      {/* Left arm */}
+      <ellipse cx="60" cy="152" rx="18" ry="28" fill="#78b8d4" transform="rotate(-10 60 152)"/>
+      <ellipse cx="52" cy="174" rx="14" ry="14" fill="#8cc8e0"/>
+      {/* Right arm */}
+      <ellipse cx="140" cy="152" rx="18" ry="28" fill="#78b8d4" transform="rotate(10 140 152)"/>
+      <ellipse cx="148" cy="174" rx="14" ry="14" fill="#8cc8e0"/>
+      {/* ── EARS ── */}
+      <ellipse cx="46" cy="88" rx="30" ry="38" fill="#5aaac4"/>
+      <ellipse cx="50" cy="91" rx="18" ry="25" fill="#9ad4ea" opacity="0.7"/>
+      <ellipse cx="154" cy="88" rx="30" ry="38" fill="#5aaac4"/>
+      <ellipse cx="150" cy="91" rx="18" ry="25" fill="#9ad4ea" opacity="0.7"/>
+      {/* ── HEAD ── */}
+      <ellipse cx="100" cy="88" rx="54" ry="56" fill="#7ac4d8"/>
+      {/* Head highlight */}
+      <ellipse cx="86" cy="68" rx="26" ry="20" fill="#a8dcec" opacity="0.5"/>
+      {/* ── TRUNK — short, straight down like reference ── */}
+      <rect x="87" y="124" width="26" height="32" rx="13" fill="#5aaac4"/>
+      <ellipse cx="100" cy="156" rx="13" ry="9" fill="#6ab8cc"/>
+      {/* Nostril dots */}
+      <circle cx="95" cy="154" r="3" fill="rgba(0,60,90,0.25)"/>
+      <circle cx="105" cy="154" r="3" fill="rgba(0,60,90,0.25)"/>
+      {/* ── EYES — large round like reference ── */}
+      <ellipse cx="82" cy="82" rx="15" ry="16" fill="white"/>
+      <ellipse cx="118" cy="82" rx="15" ry="16" fill="white"/>
+      <circle cx="84" cy="84" r="10" fill="#2a1a0a"/>
+      <circle cx="120" cy="84" r="10" fill="#2a1a0a"/>
+      <circle cx="84" cy="84" r="6" fill="#100a04"/>
+      <circle cx="120" cy="84" r="6" fill="#100a04"/>
+      <circle cx="88" cy="79" r="4" fill="white" opacity="0.9"/>
+      <circle cx="124" cy="79" r="4" fill="white" opacity="0.9"/>
+      {/* ── GLASSES — rectangular black like reference ── */}
+      {/* Left lens bg */}
+      <rect x="64" y="70" width="34" height="22" rx="5" fill="rgba(180,220,240,0.2)"/>
+      {/* Right lens bg */}
+      <rect x="102" y="70" width="34" height="22" rx="5" fill="rgba(180,220,240,0.2)"/>
+      {/* Left frame */}
+      <rect x="64" y="70" width="34" height="22" rx="5" fill="none" stroke="#111" strokeWidth="2.8"/>
+      {/* Right frame */}
+      <rect x="102" y="70" width="34" height="22" rx="5" fill="none" stroke="#111" strokeWidth="2.8"/>
+      {/* Bridge */}
+      <line x1="98" y1="81" x2="102" y2="81" stroke="#111" strokeWidth="2.8"/>
+      {/* Temples */}
+      <line x1="64" y1="80" x2="46" y2="76" stroke="#111" strokeWidth="2.4" strokeLinecap="round"/>
+      <line x1="136" y1="80" x2="154" y2="76" stroke="#111" strokeWidth="2.4" strokeLinecap="round"/>
+      {/* Lens glare */}
+      <path d="M70 76 Q79 73 88 77" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M108 76 Q117 73 126 77" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.8" strokeLinecap="round"/>
+      {/* ── EYEBROWS ── */}
+      <path d="M65 65 Q80 58 95 63" fill="none" stroke="#1a1a1a" strokeWidth="2.6" strokeLinecap="round"/>
+      <path d="M105 63 Q120 58 135 65" fill="none" stroke="#1a1a1a" strokeWidth="2.6" strokeLinecap="round"/>
+      {/* ── CHEEKS ── */}
+      <ellipse cx="62" cy="100" rx="12" ry="8" fill="#f090a0" opacity="0.35"/>
+      <ellipse cx="138" cy="100" rx="12" ry="8" fill="#f090a0" opacity="0.35"/>
+      {/* ── SMILE ── */}
+      <path d="M86 112 Q100 122 114 112" fill="none" stroke="#1a3a5c" strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 };
@@ -1768,69 +1786,390 @@ function BASForecasting({ invoices, expenses }) {
   const mo = new Date().getMonth();
   const cq = mo>=6&&mo<=8?0:mo>=9&&mo<=11?1:mo>=0&&mo<=2?2:3;
   const fy = new Date().getMonth()>=6?new Date().getFullYear():new Date().getFullYear()-1;
+  const [activeTab, setActiveTab] = useState("bas");
+  const [expandedQ, setExpandedQ] = useState(cq);
 
   const qd = BQ.map(q=>{
     const qi = invoices.filter(i=>q.m.includes(new Date(i.date).getMonth())&&i.status!=="draft");
     const qe = expenses.filter(e=>q.m.includes(new Date(e.date).getMonth()));
-    const gc = qi.reduce((a,i)=>a+ci(i).g,0);
+    const paidInv = qi.filter(i=>i.status==="paid");
+    const gc  = qi.reduce((a,i)=>a+ci(i).g,0);
     const itc = qe.filter(e=>e.gstIncluded).reduce((a,e)=>a+e.amount/11,0);
-    return {...q,gc,itc,net:gc-itc,sales:qi.reduce((a,i)=>a+ci(i).s,0),cnt:qi.length};
+    const revenue   = paidInv.reduce((a,i)=>a+ci(i).s,0);
+    const totalExp  = qe.reduce((a,e)=>a+e.amount,0);
+    const expExGST  = qe.reduce((a,e)=>a+(e.gstIncluded?e.amount-e.amount/11:e.amount),0);
+    const grossProfit = revenue - expExGST;
+    const outstanding = qi.filter(i=>i.status!=="paid").reduce((a,i)=>a+ci(i).t,0);
+    // Expense breakdown by category
+    const expByCat = {};
+    qe.forEach(e=>{ expByCat[e.category]=(expByCat[e.category]||0)+e.amount; });
+    return {
+      ...q, gc, itc, net:gc-itc,
+      sales:qi.reduce((a,i)=>a+ci(i).s,0),
+      revenue, totalExp, expExGST, grossProfit, outstanding,
+      cnt:qi.length, expByCat,
+      paidCnt:paidInv.length, expCnt:qe.length,
+    };
   });
+
+  // EOFY totals
+  const eofy = {
+    revenue:    qd.reduce((a,q)=>a+q.revenue,0),
+    sales:      qd.reduce((a,q)=>a+q.sales,0),
+    totalExp:   qd.reduce((a,q)=>a+q.totalExp,0),
+    expExGST:   qd.reduce((a,q)=>a+q.expExGST,0),
+    grossProfit:qd.reduce((a,q)=>a+q.grossProfit,0),
+    gc:         qd.reduce((a,q)=>a+q.gc,0),
+    itc:        qd.reduce((a,q)=>a+q.itc,0),
+    netGST:     qd.reduce((a,q)=>a+q.net,0),
+    outstanding:qd.reduce((a,q)=>a+q.outstanding,0),
+    invCnt:     qd.reduce((a,q)=>a+q.cnt,0),
+    expCnt:     qd.reduce((a,q)=>a+q.expCnt,0),
+  };
+  // All-year expense breakdown
+  const eofyExpByCat = {};
+  expenses.forEach(e=>{ eofyExpByCat[e.category]=(eofyExpByCat[e.category]||0)+e.amount; });
+
+  const TABS = [
+    {id:"bas",   label:"BAS Forecast"},
+    {id:"q",     label:"Quarterly Statements"},
+    {id:"eofy",  label:"EOFY Report"},
+  ];
+
+  const profitColour = (v) => v >= 0 ? "var(--green)" : "var(--red)";
+
+  const StatRow = ({label, value, bold, colour, indent, border}) => (
+    <div style={{
+      display:"flex", justifyContent:"space-between", alignItems:"center",
+      padding:"7px 0",
+      borderTop: border ? "1.5px solid var(--border)" : "1px solid var(--surface2)",
+      paddingLeft: indent ? "16px" : "0",
+    }}>
+      <span style={{fontSize:"13px", fontWeight: bold?700:400, color: bold?"var(--text)":"var(--muted)"}}>{label}</span>
+      <span style={{fontSize:"13px", fontWeight: bold?700:500, color: colour||"var(--text)", fontVariantNumeric:"tabular-nums"}}>{value}</span>
+    </div>
+  );
+
+  const QStatement = ({q, i}) => (
+    <div className="card" style={{marginBottom:"14px"}}>
+      {/* Quarter header */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",userSelect:"none"}}
+        onClick={()=>setExpandedQ(expandedQ===i?null:i)}>
+        <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
+          <div style={{
+            background: i===cq?"var(--brand)":"var(--surface2)",
+            color: i===cq?"#fff":"var(--muted)",
+            borderRadius:"8px", padding:"4px 10px", fontSize:"11px", fontWeight:700,
+          }}>{q.l}</div>
+          <div>
+            <div style={{fontFamily:"var(--ff)",fontSize:"15px",fontWeight:700}}>{q.p} — FY{fy}/{fy+1}</div>
+            <div style={{fontSize:"11.5px",color:"var(--muted)"}}>BAS due {q.due} · {q.paidCnt} paid invoice{q.paidCnt!==1?"s":""} · {q.expCnt} expense{q.expCnt!==1?"s":""}</div>
+          </div>
+          {i===cq && <span className="badge bg-br" style={{fontSize:"10px"}}>Current</span>}
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:"16px"}}>
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:"11px",color:"var(--muted)"}}>Net Profit</div>
+            <div style={{fontFamily:"var(--ff)",fontSize:"17px",fontWeight:700,color:profitColour(q.grossProfit)}}>{fmt(q.grossProfit)}</div>
+          </div>
+          <span style={{color:"var(--muted)",fontSize:"18px"}}>{expandedQ===i?"▲":"▼"}</span>
+        </div>
+      </div>
+
+      {expandedQ===i && (
+        <div style={{marginTop:"18px"}}>
+          {/* 3 summary cards */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"10px",marginBottom:"18px"}}>
+            {[
+              {l:"Revenue (Paid)",  v:fmt(q.revenue),      c:"var(--green)"},
+              {l:"Total Expenses",  v:fmt(q.totalExp),      c:"var(--red)"},
+              {l:"Net Profit",      v:fmt(q.grossProfit),   c:profitColour(q.grossProfit)},
+            ].map(s=>(
+              <div key={s.l} className="card card-xs" style={{boxShadow:"none",background:"var(--surface2)"}}>
+                <div className="sl">{s.l}</div>
+                <div className="sv" style={{fontSize:"18px",color:s.c}}>{s.v}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="g2" style={{marginBottom:"14px"}}>
+            {/* P&L Statement */}
+            <div>
+              <div className="sh2-title" style={{marginBottom:"10px"}}>Profit & Loss Statement</div>
+              <StatRow label="Gross Sales (all invoices excl. GST)" value={fmt(q.sales)}/>
+              <StatRow label={`Outstanding (${q.cnt-q.paidCnt} unpaid)`} value={fmt(q.outstanding)} indent colour="var(--orange)"/>
+              <StatRow label="Revenue Received (paid invoices)" value={fmt(q.revenue)} bold border/>
+              <div style={{height:"8px"}}/>
+              <StatRow label="Total Expenses (incl. GST)" value={fmt(q.totalExp)}/>
+              <StatRow label="Less: GST credits claimed" value={`(${fmt(q.itc)})`} indent colour="var(--blue)"/>
+              <StatRow label="Net Expenses (excl. GST)" value={fmt(q.expExGST)} bold border/>
+              <div style={{height:"8px"}}/>
+              <StatRow label="Net Profit / (Loss)" value={fmt(q.grossProfit)} bold border colour={profitColour(q.grossProfit)}/>
+            </div>
+
+            {/* GST Summary + Expense breakdown */}
+            <div>
+              <div className="sh2-title" style={{marginBottom:"10px"}}>GST Summary (BAS)</div>
+              <StatRow label="GST Collected (1A)" value={fmt(q.gc)} colour="var(--green)"/>
+              <StatRow label="Input Tax Credits (1B)" value={fmt(q.itc)} colour="var(--blue)"/>
+              <StatRow label={q.net>=0?"Net GST Payable":"GST Refund"} value={fmt(Math.abs(q.net))} bold border colour={q.net>0?"var(--red)":"var(--green)"}/>
+
+              {Object.keys(q.expByCat).length > 0 && (
+                <>
+                  <div className="sh2-title" style={{marginBottom:"8px",marginTop:"18px"}}>Expenses by Category</div>
+                  {Object.entries(q.expByCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>(
+                    <StatRow key={cat} label={cat} value={fmt(amt)}/>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* BAS checklist */}
+          <div style={{background:"var(--brand-dim)",border:"1px solid rgba(27,110,74,.15)",borderRadius:"8px",padding:"12px 14px"}}>
+            <div style={{fontWeight:700,color:"var(--brand)",fontSize:"12.5px",marginBottom:"8px"}}>📋 BAS Lodgement Checklist — {q.l}</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:"6px"}}>
+              {["Reconcile with bank statements","Confirm GST credits are valid","Check PAYG withholding (W1/W2)","Lodge via ATO Business Portal"].map((item,j)=>(
+                <div key={j} style={{display:"flex",gap:"8px",fontSize:"12px",color:"var(--muted)",alignItems:"center"}}>
+                  <span style={{color:"var(--brand)"}}>○</span>{item}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div>
       <div className="ph">
-        <div><div className="ph-title">BAS Forecast</div><div className="ph-sub">Financial Year {fy}/{fy+1}</div></div>
+        <div>
+          <div className="ph-title">BAS & Statements</div>
+          <div className="ph-sub">Financial Year {fy}/{fy+1}</div>
+        </div>
       </div>
 
-      <div className="bas-g4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"12px",marginBottom:"18px"}}>
-        {qd.map((q,i)=>(
-          <div key={i} className="bas-card" style={i===cq?{borderColor:"var(--brand)",background:"var(--brand-dim)"}:{}}>
-            <div className="bas-ql">{q.l} {i===cq&&<span className="badge bg-br" style={{marginLeft:"4px",fontSize:"10px"}}>Now</span>}</div>
-            <div className="bas-qp">{q.p} · Due {q.due}</div>
-            <div className="bas-row"><span style={{color:"var(--muted)"}}>Sales (G1)</span><span className="tmono">{fmt(q.sales)}</span></div>
-            <div className="bas-row"><span style={{color:"var(--muted)"}}>GST (1A)</span><span className="tmono" style={{color:"var(--green)"}}>{fmt(q.gc)}</span></div>
-            <div className="bas-row"><span style={{color:"var(--muted)"}}>ITCs (1B)</span><span className="tmono" style={{color:"var(--blue)"}}>{fmt(q.itc)}</span></div>
-            <div style={{fontWeight:700,fontSize:"11.5px",marginTop:"10px",color:"var(--muted)"}}>Net GST</div>
-            <div className="bas-net" style={{color:q.net>0?"var(--red)":"var(--green)"}}>{fmt(Math.abs(q.net))}</div>
-            <div style={{fontSize:"11px",color:q.net>0?"var(--red)":"var(--green)",marginTop:"2px"}}>{q.net>0?"Payable":q.net<0?"Refund":"Nil"}</div>
-          </div>
+      {/* Tab switcher */}
+      <div className="tabs" style={{marginBottom:"20px"}}>
+        {TABS.map(t=>(
+          <div key={t.id} className={`tab ${activeTab===t.id?"on":""}`} onClick={()=>setActiveTab(t.id)}>{t.label}</div>
         ))}
       </div>
 
-      <div className="card" style={{marginBottom:"14px"}}>
-        <div className="sh2"><div className="sh2-title">Annual Summary</div></div>
-        <div className="tscroll">
-          <table>
-            <thead><tr><th>Quarter</th><th>Period</th><th>Due</th><th>Total Sales</th><th>GST (1A)</th><th>ITCs (1B)</th><th>Net GST</th><th>Invoices</th></tr></thead>
-            <tbody>
-              {qd.map((q,i)=>(
-                <tr key={i} style={i===cq?{background:"var(--brand-dim)"}:{}}>
-                  <td style={{fontWeight:700}}>{q.l} {i===cq&&<span className="badge bg-br" style={{fontSize:"10px"}}>Now</span>}</td>
-                  <td style={{color:"var(--muted)",fontSize:"12px"}}>{q.p}</td>
-                  <td style={{color:"var(--muted)",fontSize:"12px"}}>{q.due}</td>
-                  <td className="tmono">{fmt(q.sales)}</td>
-                  <td className="tmono" style={{color:"var(--green)"}}>{fmt(q.gc)}</td>
-                  <td className="tmono" style={{color:"var(--blue)"}}>{fmt(q.itc)}</td>
-                  <td className="tmono" style={{color:q.net>0?"var(--red)":"var(--green)",fontWeight:700}}>{fmt(Math.abs(q.net))}</td>
-                  <td style={{color:"var(--muted)"}}>{q.cnt}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* ── BAS FORECAST TAB ── */}
+      {activeTab==="bas" && (
+        <div>
+          <div className="bas-g4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"12px",marginBottom:"18px"}}>
+            {qd.map((q,i)=>(
+              <div key={i} className="bas-card" style={i===cq?{borderColor:"var(--brand)",background:"var(--brand-dim)"}:{}}>
+                <div className="bas-ql">{q.l} {i===cq&&<span className="badge bg-br" style={{marginLeft:"4px",fontSize:"10px"}}>Now</span>}</div>
+                <div className="bas-qp">{q.p} · Due {q.due}</div>
+                <div className="bas-row"><span style={{color:"var(--muted)"}}>Sales (G1)</span><span className="tmono">{fmt(q.sales)}</span></div>
+                <div className="bas-row"><span style={{color:"var(--muted)"}}>GST (1A)</span><span className="tmono" style={{color:"var(--green)"}}>{fmt(q.gc)}</span></div>
+                <div className="bas-row"><span style={{color:"var(--muted)"}}>ITCs (1B)</span><span className="tmono" style={{color:"var(--blue)"}}>{fmt(q.itc)}</span></div>
+                <div style={{fontWeight:700,fontSize:"11.5px",marginTop:"10px",color:"var(--muted)"}}>Net GST</div>
+                <div className="bas-net" style={{color:q.net>0?"var(--red)":"var(--green)"}}>{fmt(Math.abs(q.net))}</div>
+                <div style={{fontSize:"11px",color:q.net>0?"var(--red)":"var(--green)",marginTop:"2px"}}>{q.net>0?"Payable":q.net<0?"Refund":"Nil"}</div>
+              </div>
+            ))}
+          </div>
 
-      <div className="card" style={{borderColor:"rgba(27,110,74,.2)",background:"var(--brand-dim)"}}>
-        <div style={{fontWeight:700,color:"var(--brand)",marginBottom:"11px",fontSize:"13.5px"}}>📋 BAS Lodgement Checklist</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:"8px"}}>
-          {["Reconcile invoices with bank statements","Confirm all GST credits are valid","Check PAYG withholding (W1/W2)","Review FBT obligations","Verify fuel tax credits","Lodge via ATO Business Portal"].map((item,i)=>(
-            <div key={i} style={{display:"flex",gap:"9px",fontSize:"12.5px",color:"var(--muted)",alignItems:"flex-start"}}>
-              <span style={{color:"var(--brand)",flexShrink:0}}>○</span>{item}
+          <div className="card" style={{marginBottom:"14px"}}>
+            <div className="sh2"><div className="sh2-title">Annual GST Summary</div></div>
+            <div className="tscroll">
+              <table>
+                <thead><tr><th>Quarter</th><th>Period</th><th>Due</th><th>Total Sales</th><th>GST (1A)</th><th>ITCs (1B)</th><th>Net GST</th><th>Invoices</th></tr></thead>
+                <tbody>
+                  {qd.map((q,i)=>(
+                    <tr key={i} style={i===cq?{background:"var(--brand-dim)"}:{}}>
+                      <td style={{fontWeight:700}}>{q.l} {i===cq&&<span className="badge bg-br" style={{fontSize:"10px"}}>Now</span>}</td>
+                      <td style={{color:"var(--muted)",fontSize:"12px"}}>{q.p}</td>
+                      <td style={{color:"var(--muted)",fontSize:"12px"}}>{q.due}</td>
+                      <td className="tmono">{fmt(q.sales)}</td>
+                      <td className="tmono" style={{color:"var(--green)"}}>{fmt(q.gc)}</td>
+                      <td className="tmono" style={{color:"var(--blue)"}}>{fmt(q.itc)}</td>
+                      <td className="tmono" style={{color:q.net>0?"var(--red)":"var(--green)",fontWeight:700}}>{fmt(Math.abs(q.net))}</td>
+                      <td style={{color:"var(--muted)"}}>{q.cnt}</td>
+                    </tr>
+                  ))}
+                  <tr style={{background:"var(--surface2)",fontWeight:700}}>
+                    <td colSpan={3}>FY Total</td>
+                    <td className="tmono">{fmt(eofy.sales)}</td>
+                    <td className="tmono" style={{color:"var(--green)"}}>{fmt(eofy.gc)}</td>
+                    <td className="tmono" style={{color:"var(--blue)"}}>{fmt(eofy.itc)}</td>
+                    <td className="tmono" style={{color:eofy.netGST>0?"var(--red)":"var(--green)"}}>{fmt(Math.abs(eofy.netGST))}</td>
+                    <td style={{color:"var(--muted)"}}>{eofy.invCnt}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          ))}
+          </div>
+
+          <div className="card" style={{borderColor:"rgba(27,110,74,.2)",background:"var(--brand-dim)"}}>
+            <div style={{fontWeight:700,color:"var(--brand)",marginBottom:"11px",fontSize:"13.5px"}}>📋 BAS Lodgement Checklist</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:"8px"}}>
+              {["Reconcile invoices with bank statements","Confirm all GST credits are valid","Check PAYG withholding (W1/W2)","Review FBT obligations","Verify fuel tax credits","Lodge via ATO Business Portal"].map((item,i)=>(
+                <div key={i} style={{display:"flex",gap:"9px",fontSize:"12.5px",color:"var(--muted)",alignItems:"flex-start"}}>
+                  <span style={{color:"var(--brand)",flexShrink:0}}>○</span>{item}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── QUARTERLY STATEMENTS TAB ── */}
+      {activeTab==="q" && (
+        <div>
+          <div style={{background:"rgba(37,99,168,.06)",border:"1px solid rgba(37,99,168,.15)",borderRadius:"8px",padding:"12px 15px",fontSize:"13px",marginBottom:"18px",color:"var(--blue)"}}>
+            Click any quarter to expand its full Profit & Loss statement and BAS summary. Based on invoices and expenses recorded in that quarter.
+          </div>
+          {qd.map((q,i)=><QStatement key={i} q={q} i={i}/>)}
+        </div>
+      )}
+
+      {/* ── EOFY REPORT TAB ── */}
+      {activeTab==="eofy" && (
+        <div>
+          {/* Header banner */}
+          <div style={{
+            background:"var(--brand-dark)",borderRadius:"12px",padding:"24px 28px",
+            marginBottom:"20px",color:"#fff",
+          }}>
+            <div style={{fontFamily:"var(--ff)",fontSize:"22px",fontWeight:800,marginBottom:"4px"}}>
+              End of Financial Year Report
+            </div>
+            <div style={{fontSize:"13px",color:"rgba(255,255,255,.55)"}}>
+              FY{fy}/{fy+1} · 1 July {fy} – 30 June {fy+1} · Generated {new Date().toLocaleDateString("en-AU",{day:"numeric",month:"long",year:"numeric"})}
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:"16px",marginTop:"20px"}}>
+              {[
+                {l:"Total Revenue",   v:fmt(eofy.revenue),      c:"#6ee7b7"},
+                {l:"Total Expenses",  v:fmt(eofy.expExGST),     c:"#fca5a5"},
+                {l:"Net Profit",      v:fmt(eofy.grossProfit),   c:eofy.grossProfit>=0?"#6ee7b7":"#fca5a5"},
+                {l:"Net GST Payable", v:fmt(Math.abs(eofy.netGST)), c:"#93c5fd"},
+              ].map(s=>(
+                <div key={s.l}>
+                  <div style={{fontSize:"10.5px",color:"rgba(255,255,255,.45)",textTransform:"uppercase",letterSpacing:"1px",marginBottom:"4px"}}>{s.l}</div>
+                  <div style={{fontFamily:"var(--ff)",fontSize:"22px",fontWeight:800,color:s.c}}>{s.v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="g2" style={{marginBottom:"18px"}}>
+            {/* Full year P&L */}
+            <div className="card">
+              <div className="sh2-title" style={{marginBottom:"14px"}}>Profit & Loss — FY{fy}/{fy+1}</div>
+
+              <div style={{fontSize:"11px",color:"var(--muted)",textTransform:"uppercase",letterSpacing:"1px",fontWeight:600,marginBottom:"6px",padding:"6px 0",borderBottom:"2px solid var(--border)"}}>Income</div>
+              <StatRow label="Gross Sales (all invoices excl. GST)" value={fmt(eofy.sales)}/>
+              <StatRow label={`Less: Outstanding invoices`} value={`(${fmt(eofy.outstanding)})`} indent colour="var(--orange)"/>
+              <StatRow label="Revenue Received" value={fmt(eofy.revenue)} bold border/>
+
+              <div style={{height:"12px"}}/>
+              <div style={{fontSize:"11px",color:"var(--muted)",textTransform:"uppercase",letterSpacing:"1px",fontWeight:600,marginBottom:"6px",padding:"6px 0",borderBottom:"2px solid var(--border)"}}>Expenses</div>
+              <StatRow label="Total Expenses (incl. GST)" value={fmt(eofy.totalExp)}/>
+              <StatRow label="Less: GST input tax credits" value={`(${fmt(eofy.itc)})`} indent colour="var(--blue)"/>
+              <StatRow label="Net Expenses (excl. GST)" value={fmt(eofy.expExGST)} bold border/>
+
+              <div style={{height:"12px"}}/>
+              <div style={{fontSize:"11px",color:"var(--muted)",textTransform:"uppercase",letterSpacing:"1px",fontWeight:600,marginBottom:"6px",padding:"6px 0",borderBottom:"2px solid var(--border)"}}>Result</div>
+              <StatRow label="Gross Profit / (Loss)" value={fmt(eofy.grossProfit)} bold colour={profitColour(eofy.grossProfit)}/>
+              <div style={{fontSize:"11.5px",color:"var(--dim)",marginTop:"10px",lineHeight:1.6,padding:"10px",background:"var(--surface2)",borderRadius:"7px"}}>
+                ⚠️ This is a bookkeeping estimate only. Depreciation, director wages, loan repayments and other adjustments are not included. Consult your tax agent before lodging your tax return.
+              </div>
+            </div>
+
+            {/* GST + Expense breakdown */}
+            <div>
+              <div className="card" style={{marginBottom:"14px"}}>
+                <div className="sh2-title" style={{marginBottom:"14px"}}>GST Summary — Full Year</div>
+                <StatRow label="GST Collected (1A) — all quarters" value={fmt(eofy.gc)} colour="var(--green)"/>
+                <StatRow label="Input Tax Credits (1B) — all quarters" value={fmt(eofy.itc)} colour="var(--blue)"/>
+                <StatRow label={eofy.netGST>=0?"Annual Net GST Payable":"Annual GST Refund"} value={fmt(Math.abs(eofy.netGST))} bold border colour={eofy.netGST>0?"var(--red)":"var(--green)"}/>
+              </div>
+
+              {Object.keys(eofyExpByCat).length > 0 && (
+                <div className="card">
+                  <div className="sh2-title" style={{marginBottom:"14px"}}>Expenses by Category</div>
+                  {Object.entries(eofyExpByCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>(
+                    <div key={cat}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"4px",fontSize:"12.5px"}}>
+                        <span style={{color:"var(--muted)"}}>{cat}</span>
+                        <span style={{fontWeight:500}}>{fmt(amt)}</span>
+                      </div>
+                      <div style={{height:"5px",background:"var(--surface2)",borderRadius:"3px",marginBottom:"8px"}}>
+                        <div style={{height:"100%",borderRadius:"3px",background:"var(--brand)",width:`${Math.min(100,(amt/eofy.totalExp)*100)}%`,transition:"width .5s"}}/>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quarterly comparison table */}
+          <div className="card" style={{marginBottom:"14px"}}>
+            <div className="sh2-title" style={{marginBottom:"14px"}}>Quarter by Quarter Comparison</div>
+            <div className="tscroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Quarter</th><th>Revenue</th><th>Expenses (ex. GST)</th><th>Gross Profit</th><th>GST Payable</th><th>Margin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {qd.map((q,i)=>{
+                    const margin = q.revenue>0?((q.grossProfit/q.revenue)*100).toFixed(1):"-";
+                    return (
+                      <tr key={i} style={i===cq?{background:"var(--brand-dim)"}:{}}>
+                        <td style={{fontWeight:700}}>{q.l} <span style={{fontSize:"11px",color:"var(--muted)",fontWeight:400}}>{q.p}</span></td>
+                        <td className="tmono" style={{color:"var(--green)"}}>{fmt(q.revenue)}</td>
+                        <td className="tmono" style={{color:"var(--red)"}}>{fmt(q.expExGST)}</td>
+                        <td className="tmono" style={{color:profitColour(q.grossProfit),fontWeight:700}}>{fmt(q.grossProfit)}</td>
+                        <td className="tmono" style={{color:q.net>0?"var(--red)":"var(--green)"}}>{fmt(Math.abs(q.net))}</td>
+                        <td className="tmono" style={{color:parseFloat(margin)>=0?"var(--green)":"var(--red)"}}>{margin !== "-" ? `${margin}%` : "—"}</td>
+                      </tr>
+                    );
+                  })}
+                  <tr style={{background:"var(--surface2)",fontWeight:700}}>
+                    <td>FY Total</td>
+                    <td className="tmono" style={{color:"var(--green)"}}>{fmt(eofy.revenue)}</td>
+                    <td className="tmono" style={{color:"var(--red)"}}>{fmt(eofy.expExGST)}</td>
+                    <td className="tmono" style={{color:profitColour(eofy.grossProfit)}}>{fmt(eofy.grossProfit)}</td>
+                    <td className="tmono" style={{color:eofy.netGST>0?"var(--red)":"var(--green)"}}>{fmt(Math.abs(eofy.netGST))}</td>
+                    <td className="tmono" style={{color:eofy.revenue>0?profitColour(eofy.grossProfit):"var(--muted)"}}>
+                      {eofy.revenue>0?`${((eofy.grossProfit/eofy.revenue)*100).toFixed(1)}%`:"—"}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Key dates */}
+          <div className="card" style={{borderColor:"rgba(27,110,74,.2)",background:"var(--brand-dim)"}}>
+            <div style={{fontWeight:700,color:"var(--brand)",marginBottom:"12px",fontSize:"13.5px"}}>📅 Key EOFY Lodgement Dates (FY{fy}/{fy+1})</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))",gap:"8px"}}>
+              {[
+                {d:`28 Jul ${fy+1}`, l:"Q4 BAS lodgement due"},
+                {d:`31 Oct ${fy+1}`, l:"Company tax return (self-lodgement)"},
+                {d:`28 Feb ${fy+2}`, l:"Company tax return (via tax agent)"},
+                {d:`30 Jun ${fy+1}`, l:"EOFY — all transactions must be recorded"},
+                {d:`14 Jul ${fy+1}`, l:"Payment summaries to employees (STP)"},
+                {d:`31 Oct ${fy+1}`, l:"Super guarantee charge statement (if applicable)"},
+              ].map(r=>(
+                <div key={r.d} style={{display:"flex",gap:"10px",fontSize:"12.5px",alignItems:"flex-start"}}>
+                  <span style={{color:"var(--brand)",fontWeight:700,minWidth:"72px",flexShrink:0}}>{r.d}</span>
+                  <span style={{color:"var(--muted)"}}>{r.l}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
