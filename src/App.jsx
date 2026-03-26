@@ -1040,91 +1040,238 @@ function Dashboard({ invoices, expenses }) {
       </div>
 
       {/* ── LEDGER SUMMARY ── */}
-      <div className="card" style={{marginTop:"18px"}}>
-        <div className="sh2">
+      <LedgerSummary invoices={invoices} expenses={expenses}/>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LEDGER SUMMARY COMPONENT
+══════════════════════════════════════════════════════════════════════════ */
+function LedgerSummary({ invoices, expenses }) {
+  const [typeFilter,  setTypeFilter]  = useState("all");   // all | income | expense | outstanding
+  const [dateFrom,    setDateFrom]    = useState("");
+  const [dateTo,      setDateTo]      = useState("");
+  const [search,      setSearch]      = useState("");
+
+  // Build full entry list
+  const allEntries = [
+    ...invoices.filter(i=>i.status==="paid").map(i=>{
+      const c=ci(i);
+      return { date:i.date, desc:`Invoice ${i.number} — ${i.client}`, type:"income", credit:c.t, debit:0, raw:c.t };
+    }),
+    ...invoices.filter(i=>i.status!=="paid"&&i.status!=="draft").map(i=>{
+      const c=ci(i);
+      return { date:i.date, desc:`${i.status.charAt(0).toUpperCase()+i.status.slice(1)}: Inv ${i.number} — ${i.client}`, type:"outstanding", credit:0, debit:0, pending:c.t, raw:0 };
+    }),
+    ...expenses.map(e=>({
+      date:e.date, desc:e.desc||e.category, type:"expense", credit:0, debit:e.amount, pending:0, raw:-e.amount,
+    })),
+  ].sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+  // Apply filters
+  const filtered = allEntries.filter(e=>{
+    if (typeFilter!=="all" && e.type!==typeFilter) return false;
+    if (dateFrom && e.date < dateFrom) return false;
+    if (dateTo   && e.date > dateTo)   return false;
+    if (search && !e.desc.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  // Running balance on filtered set
+  const withBalance = filtered.reduce((acc,e,i)=>{
+    const prev = i>0 ? acc[i-1].balance : 0;
+    return [...acc, {...e, balance: prev + e.credit - e.debit}];
+  },[]);
+
+  const totalCredit  = filtered.reduce((a,e)=>a+e.credit,0);
+  const totalDebit   = filtered.reduce((a,e)=>a+e.debit,0);
+  const finalBalance = totalCredit - totalDebit;
+
+  // ── Download CSV (Excel) ──
+  const downloadCSV = () => {
+    const headers = ["Date","Description","Type","Credit (Income)","Debit (Expense)","Balance"];
+    const rows = withBalance.map(e=>[
+      e.date,
+      `"${e.desc.replace(/"/g,'""')}"`,
+      e.type.charAt(0).toUpperCase()+e.type.slice(1),
+      e.credit>0 ? e.credit.toFixed(2) : "",
+      e.debit>0  ? e.debit.toFixed(2)  : (e.pending>0?e.pending.toFixed(2):""),
+      e.balance.toFixed(2),
+    ]);
+    rows.push(["","","Totals",totalCredit.toFixed(2),totalDebit.toFixed(2),finalBalance.toFixed(2)]);
+    const csv = [headers, ...rows].map(r=>r.join(",")).join("\n");
+    const blob = new Blob([csv], {type:"text/csv"});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = `BusyBookie_Ledger_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  };
+
+  // ── Download PDF (print window) ──
+  const downloadPDF = () => {
+    const rows = withBalance.map(e=>`
+      <tr>
+        <td>${fmtD(e.date)}</td>
+        <td>${e.desc}</td>
+        <td><span class="badge ${e.type}">${e.type.charAt(0).toUpperCase()+e.type.slice(1)}</span></td>
+        <td class="num green">${e.credit>0?"$"+e.credit.toFixed(2):""}</td>
+        <td class="num red">${e.debit>0?"$"+e.debit.toFixed(2):e.pending>0?"$"+e.pending.toFixed(2):""}</td>
+        <td class="num ${e.balance>=0?"green":"red"} bold">$${Math.abs(e.balance).toFixed(2)} <small>${e.balance>=0?"CR":"DR"}</small></td>
+      </tr>`).join("");
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/>
+      <title>Ledger Summary — The Busy Bookie</title>
+      <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:Arial,sans-serif;font-size:11px;color:#1a1714;padding:20px}
+        h1{font-size:20px;color:#124d34;margin-bottom:4px}
+        .sub{font-size:11px;color:#79736a;margin-bottom:18px}
+        table{width:100%;border-collapse:collapse;margin-top:10px}
+        th{background:#124d34;color:#fff;padding:7px 9px;text-align:left;font-size:10.5px}
+        td{padding:6px 9px;border-bottom:1px solid #e8e2d9;font-size:11px}
+        tr:nth-child(even) td{background:#f8f6f2}
+        tfoot td{background:#f0ede8;font-weight:700;border-top:2px solid #124d34}
+        .num{text-align:right;font-family:monospace}
+        .green{color:#1b6e4a}.red{color:#c23b2e}.bold{font-weight:700}
+        .badge{padding:2px 7px;border-radius:20px;font-size:9.5px;font-weight:700}
+        .badge.income{background:#f0faf5;color:#1b6e4a}
+        .badge.expense{background:#fff5f5;color:#c23b2e}
+        .badge.outstanding{background:#fff8f0;color:#d4621f}
+        .filters{font-size:10px;color:#79736a;margin-bottom:12px;padding:8px 10px;background:#f8f6f2;border-radius:4px}
+        @media print{body{padding:10px}}
+      </style></head><body>
+      <h1>Ledger Summary</h1>
+      <div class="sub">The Busy Bookie · Generated ${new Date().toLocaleDateString("en-AU",{day:"numeric",month:"long",year:"numeric"})}</div>
+      <div class="filters">
+        Filter: ${typeFilter==="all"?"All types":typeFilter.charAt(0).toUpperCase()+typeFilter.slice(1)}
+        ${dateFrom?` · From: ${fmtD(dateFrom)}`:""}
+        ${dateTo?` · To: ${fmtD(dateTo)}`:""}
+        ${search?` · Search: "${search}"`:""}
+        · ${withBalance.length} transactions
+      </div>
+      <table>
+        <thead><tr><th>Date</th><th>Description</th><th>Type</th><th style="text-align:right">Credit</th><th style="text-align:right">Debit</th><th style="text-align:right">Balance</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr>
+          <td colspan="3">Totals</td>
+          <td class="num green">$${totalCredit.toFixed(2)}</td>
+          <td class="num red">$${totalDebit.toFixed(2)}</td>
+          <td class="num ${finalBalance>=0?"green":"red"}">$${Math.abs(finalBalance).toFixed(2)} ${finalBalance>=0?"CR":"DR"}</td>
+        </tr></tfoot>
+      </table>
+      <script>window.onload=()=>{window.print()}</script>
+      </body></html>`;
+    const win = window.open("","_blank");
+    win.document.write(html);
+    win.document.close();
+  };
+
+  const TYPE_OPTS = [{v:"all",l:"All Types"},{v:"income",l:"Income Only"},{v:"expense",l:"Expenses Only"},{v:"outstanding",l:"Outstanding Only"}];
+  const typeColour = t => t==="income"?"var(--green)":t==="expense"?"var(--red)":"var(--orange)";
+  const typeBg     = t => t==="income"?"rgba(27,110,74,.07)":t==="expense"?"rgba(194,59,46,.07)":"rgba(212,98,31,.07)";
+
+  return (
+    <div className="card" style={{marginTop:"18px"}}>
+      <div className="sh2" style={{flexWrap:"wrap",gap:"10px"}}>
+        <div>
           <div className="sh2-title">Ledger Summary</div>
-          <div style={{fontSize:"12px",color:"var(--muted)"}}>All transactions · running balance</div>
+          <div style={{fontSize:"12px",color:"var(--muted)"}}>{withBalance.length} transactions · running balance</div>
         </div>
-        <div className="tscroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Type</th>
-                <th style={{textAlign:"right"}}>Credit (Income)</th>
-                <th style={{textAlign:"right"}}>Debit (Expense)</th>
-                <th style={{textAlign:"right"}}>Balance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(() => {
-                // Merge invoices (paid only = income) + expenses into one sorted ledger
-                const entries = [
-                  ...invoices.filter(i=>i.status==="paid").map(i=>{
-                    const c=ci(i);
-                    return { date:i.date, desc:`Invoice ${i.number} — ${i.client}`, type:"invoice", credit:c.t, debit:0 };
-                  }),
-                  ...invoices.filter(i=>i.status!=="paid"&&i.status!=="draft").map(i=>{
-                    const c=ci(i);
-                    return { date:i.date, desc:`${i.status.charAt(0).toUpperCase()+i.status.slice(1)}: Inv ${i.number} — ${i.client}`, type:"outstanding", credit:0, debit:0, pending:c.t };
-                  }),
-                  ...expenses.map(e=>({
-                    date:e.date, desc:e.desc||e.category, type:"expense", credit:0, debit:e.amount,
-                  })),
-                ].sort((a,b)=>new Date(a.date)-new Date(b.date));
+        <div style={{display:"flex",gap:"8px",flexShrink:0}}>
+          <button className="btn btn-g btn-sm" onClick={downloadCSV} title="Download Excel (CSV)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+            Excel
+          </button>
+          <button className="btn btn-g btn-sm" onClick={downloadPDF} title="Download PDF">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+            PDF
+          </button>
+        </div>
+      </div>
 
-                if (entries.length === 0) return (
-                  <tr><td colSpan={6} style={{textAlign:"center",color:"var(--muted)",padding:"24px",fontSize:"13px"}}>No transactions yet — add invoices or expenses to see your ledger.</td></tr>
-                );
+      {/* Filters */}
+      <div style={{display:"flex",flexWrap:"wrap",gap:"8px",marginBottom:"14px",padding:"12px 14px",background:"var(--surface2)",borderRadius:"8px"}}>
+        <div style={{display:"flex",gap:"6px",flexWrap:"wrap",flex:1}}>
+          {TYPE_OPTS.map(o=>(
+            <button key={o.v} onClick={()=>setTypeFilter(o.v)} style={{
+              fontSize:"11.5px",padding:"4px 12px",borderRadius:"20px",border:"1.5px solid",cursor:"pointer",fontFamily:"var(--fb)",fontWeight:500,transition:"all .14s",
+              borderColor:typeFilter===o.v?"var(--brand)":"var(--border)",
+              background:typeFilter===o.v?"var(--brand)":"transparent",
+              color:typeFilter===o.v?"#fff":"var(--muted)",
+            }}>{o.l}</button>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:"6px",alignItems:"center",flexWrap:"wrap"}}>
+          <input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)}
+            style={{height:"32px",fontSize:"12px",padding:"4px 8px",minHeight:"unset",width:"130px"}} title="From date"/>
+          <span style={{fontSize:"11px",color:"var(--muted)"}}>to</span>
+          <input type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)}
+            style={{height:"32px",fontSize:"12px",padding:"4px 8px",minHeight:"unset",width:"130px"}} title="To date"/>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search…"
+            style={{height:"32px",fontSize:"12px",padding:"4px 10px",minHeight:"unset",width:"120px"}}/>
+          {(typeFilter!=="all"||dateFrom||dateTo||search) && (
+            <button onClick={()=>{setTypeFilter("all");setDateFrom("");setDateTo("");setSearch("");}}
+              style={{fontSize:"11px",color:"var(--red)",background:"none",border:"none",cursor:"pointer",padding:"4px",fontFamily:"var(--fb)"}}>
+              ✕ Clear
+            </button>
+          )}
+        </div>
+      </div>
 
-                let balance = 0;
-                return entries.map((e,i)=>{
-                  balance += e.credit - e.debit;
-                  const typeColour = e.type==="invoice"?"var(--green)":e.type==="expense"?"var(--red)":"var(--orange)";
-                  const typeBg     = e.type==="invoice"?"rgba(27,110,74,.07)":e.type==="expense"?"rgba(194,59,46,.07)":"rgba(212,98,31,.07)";
-                  const typeLabel  = e.type==="invoice"?"Income":e.type==="expense"?"Expense":"Outstanding";
-                  return (
-                    <tr key={i}>
-                      <td style={{color:"var(--muted)",fontSize:"11.5px",whiteSpace:"nowrap"}}>{fmtD(e.date)}</td>
-                      <td style={{maxWidth:"200px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:"13px"}}>{e.desc}</td>
-                      <td>
-                        <span style={{
-                          fontSize:"10.5px",fontWeight:700,padding:"2px 8px",borderRadius:"20px",
-                          background:typeBg,color:typeColour,whiteSpace:"nowrap",
-                        }}>{typeLabel}</span>
-                      </td>
-                      <td className="tmono" style={{textAlign:"right",color:"var(--green)",fontSize:"13px"}}>
-                        {e.credit>0 ? fmt(e.credit) : ""}
-                      </td>
-                      <td className="tmono" style={{textAlign:"right",color:"var(--red)",fontSize:"13px"}}>
-                        {e.debit>0 ? fmt(e.debit) : ""}
-                        {e.pending>0 ? <span style={{color:"var(--orange)"}}>{fmt(e.pending)}</span> : ""}
-                      </td>
-                      <td className="tmono" style={{textAlign:"right",fontWeight:700,fontSize:"13px",color:balance>=0?"var(--green)":"var(--red)"}}>
-                        {fmt(Math.abs(balance))}
-                        <span style={{fontSize:"10px",fontWeight:400,color:"var(--muted)",marginLeft:"3px"}}>{balance>=0?"CR":"DR"}</span>
-                      </td>
-                    </tr>
-                  );
-                });
-              })()}
-            </tbody>
-            <tfoot>
-              <tr style={{background:"var(--surface2)",fontWeight:700}}>
-                <td colSpan={3} style={{fontWeight:700,fontSize:"13px"}}>Totals</td>
-                <td className="tmono" style={{textAlign:"right",color:"var(--green)",fontWeight:700}}>{fmt(invoices.filter(i=>i.status==="paid").reduce((a,i)=>a+ci(i).t,0))}</td>
-                <td className="tmono" style={{textAlign:"right",color:"var(--red)",fontWeight:700}}>{fmt(expenses.reduce((a,e)=>a+e.amount,0))}</td>
-                <td className="tmono" style={{textAlign:"right",fontWeight:700,color:(invoices.filter(i=>i.status==="paid").reduce((a,i)=>a+ci(i).t,0)-expenses.reduce((a,e)=>a+e.amount,0))>=0?"var(--green)":"var(--red)"}}>
-                  {fmt(Math.abs(invoices.filter(i=>i.status==="paid").reduce((a,i)=>a+ci(i).t,0)-expenses.reduce((a,e)=>a+e.amount,0)))}
-                  <span style={{fontSize:"10px",fontWeight:400,color:"var(--muted)",marginLeft:"3px"}}>
-                    {(invoices.filter(i=>i.status==="paid").reduce((a,i)=>a+ci(i).t,0)-expenses.reduce((a,e)=>a+e.amount,0))>=0?"CR":"DR"}
-                  </span>
+      <div className="tscroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Type</th>
+              <th style={{textAlign:"right"}}>Credit (Income)</th>
+              <th style={{textAlign:"right"}}>Debit (Expense)</th>
+              <th style={{textAlign:"right"}}>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {withBalance.length === 0 ? (
+              <tr><td colSpan={6} style={{textAlign:"center",color:"var(--muted)",padding:"24px",fontSize:"13px"}}>
+                {allEntries.length===0?"No transactions yet — add invoices or expenses to see your ledger.":"No transactions match the current filters."}
+              </td></tr>
+            ) : withBalance.map((e,i)=>(
+              <tr key={i}>
+                <td style={{color:"var(--muted)",fontSize:"11.5px",whiteSpace:"nowrap"}}>{fmtD(e.date)}</td>
+                <td style={{maxWidth:"200px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:"13px"}}>{e.desc}</td>
+                <td>
+                  <span style={{
+                    fontSize:"10.5px",fontWeight:700,padding:"2px 8px",borderRadius:"20px",
+                    background:typeBg(e.type),color:typeColour(e.type),whiteSpace:"nowrap",
+                  }}>{e.type.charAt(0).toUpperCase()+e.type.slice(1)}</span>
+                </td>
+                <td className="tmono" style={{textAlign:"right",color:"var(--green)",fontSize:"13px"}}>
+                  {e.credit>0 ? fmt(e.credit) : ""}
+                </td>
+                <td className="tmono" style={{textAlign:"right",fontSize:"13px"}}>
+                  {e.debit>0 ? <span style={{color:"var(--red)"}}>{fmt(e.debit)}</span> : ""}
+                  {e.pending>0 ? <span style={{color:"var(--orange)"}}>{fmt(e.pending)}</span> : ""}
+                </td>
+                <td className="tmono" style={{textAlign:"right",fontWeight:700,fontSize:"13px",color:e.balance>=0?"var(--green)":"var(--red)"}}>
+                  {fmt(Math.abs(e.balance))}
+                  <span style={{fontSize:"10px",fontWeight:400,color:"var(--muted)",marginLeft:"3px"}}>{e.balance>=0?"CR":"DR"}</span>
                 </td>
               </tr>
-            </tfoot>
-          </table>
-        </div>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr style={{background:"var(--surface2)",fontWeight:700}}>
+              <td colSpan={3} style={{fontWeight:700,fontSize:"13px"}}>Totals ({withBalance.length} rows)</td>
+              <td className="tmono" style={{textAlign:"right",color:"var(--green)",fontWeight:700}}>{fmt(totalCredit)}</td>
+              <td className="tmono" style={{textAlign:"right",color:"var(--red)",fontWeight:700}}>{fmt(totalDebit)}</td>
+              <td className="tmono" style={{textAlign:"right",fontWeight:700,color:finalBalance>=0?"var(--green)":"var(--red)"}}>
+                {fmt(Math.abs(finalBalance))}
+                <span style={{fontSize:"10px",fontWeight:400,color:"var(--muted)",marginLeft:"3px"}}>{finalBalance>=0?"CR":"DR"}</span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   );
