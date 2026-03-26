@@ -2839,10 +2839,11 @@ function Settings({ user, profile, signOut, onTour }) {
   const inviteAccountant = async () => {
     if (!inviteEmail) return;
     const { data: acctProf } = await supabase
-      .from("profiles").select("id,name,business_name").eq("email",inviteEmail.toLowerCase()).eq("role","accountant").single();
-    if (!acctProf) { setMsg("No accountant account found with that email. They need to register first."); return; }
+      .from("profiles").select("id,name,business_name,role").eq("email",inviteEmail.toLowerCase()).maybeSingle();
+    if (!acctProf) { setMsg("No account found with that email. They need to register on The Busy Bookie first."); return; }
+    if (acctProf.role !== "accountant") { setMsg("That email is registered as a business owner, not an accountant. They need to register an accountant account first."); return; }
     const { data: existing } = await supabase.from("accountant_clients")
-      .select("id,status").eq("accountant_id",acctProf.id).eq("client_id",user.id).single();
+      .select("id,status").eq("accountant_id",acctProf.id).eq("client_id",user.id).maybeSingle();
     if (existing) { setMsg(`Already linked with ${acctProf.name||acctProf.business_name}.`); return; }
     await supabase.from("accountant_clients").insert({
       accountant_id: acctProf.id, client_id: user.id, status:"active"
