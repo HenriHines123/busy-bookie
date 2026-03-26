@@ -326,20 +326,24 @@ const G = () => (
     .auth-mob-hd{
       display:none;
       background:var(--brand-dark);
-      padding:calc(36px + var(--safe-t)) 28px 36px;
-      text-align:center;
+      padding:calc(48px + var(--safe-t)) 32px 64px;
+      text-align:left;
       position:relative;
       overflow:hidden;
     }
-    .auth-mob-circle1{position:absolute;top:-60px;right:-60px;
-      width:220px;height:220px;border-radius:50%;
+    .auth-mob-wave{
+      position:absolute;bottom:-2px;left:0;width:100%;
+      pointer-events:none;
+    }
+    .auth-mob-circle1{position:absolute;top:-80px;right:-80px;
+      width:260px;height:260px;border-radius:50%;
+      background:rgba(110,231,183,.08);pointer-events:none;}
+    .auth-mob-circle2{position:absolute;top:20px;right:40px;
+      width:120px;height:120px;border-radius:50%;
       background:rgba(110,231,183,.06);pointer-events:none;}
-    .auth-mob-circle2{position:absolute;bottom:-50px;left:-50px;
-      width:160px;height:160px;border-radius:50%;
-      background:rgba(110,231,183,.04);pointer-events:none;}
-    .auth-mob-logo{font-family:var(--ff);font-size:34px;color:#fff;font-weight:800;letter-spacing:-.5px;line-height:1}
+    .auth-mob-logo{font-family:var(--ff);font-size:38px;color:#fff;font-weight:800;letter-spacing:-.5px;line-height:1}
     .auth-mob-logo span{color:var(--emerald)}
-    .auth-mob-sub{font-size:13px;color:rgba(255,255,255,.42);font-style:italic;font-family:var(--ff);margin-top:8px}
+    .auth-mob-sub{font-size:14px;color:rgba(255,255,255,.55);font-family:var(--ff);margin-top:10px;line-height:1.5}
     .auth-panel{display:flex;flex-direction:column;justify-content:center;
       align-items:center;padding:44px 48px;background:var(--bg);overflow-y:auto}
     .auth-box{width:100%;max-width:400px}
@@ -503,8 +507,8 @@ const G = () => (
       .auth-shell{grid-template-columns:1fr}
       .auth-brand{display:none}
       .auth-mob-hd{display:block}
-      .auth-panel{padding:24px 20px calc(24px + var(--safe-b));justify-content:flex-start;background:var(--bg)}
-      .auth-box{padding-top:4px}
+      .auth-panel{padding:0 20px calc(24px + var(--safe-b));justify-content:flex-start;background:var(--bg)}
+      .auth-box{padding-top:28px}
       .auth-title{font-size:21px}
       .bas-g4{grid-template-columns:1fr 1fr !important;gap:10px !important}
       .inv-wrap{padding:18px}
@@ -1032,6 +1036,94 @@ function Dashboard({ invoices, expenses }) {
               })()}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── LEDGER SUMMARY ── */}
+      <div className="card" style={{marginTop:"18px"}}>
+        <div className="sh2">
+          <div className="sh2-title">Ledger Summary</div>
+          <div style={{fontSize:"12px",color:"var(--muted)"}}>All transactions · running balance</div>
+        </div>
+        <div className="tscroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Type</th>
+                <th style={{textAlign:"right"}}>Credit (Income)</th>
+                <th style={{textAlign:"right"}}>Debit (Expense)</th>
+                <th style={{textAlign:"right"}}>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(() => {
+                // Merge invoices (paid only = income) + expenses into one sorted ledger
+                const entries = [
+                  ...invoices.filter(i=>i.status==="paid").map(i=>{
+                    const c=ci(i);
+                    return { date:i.date, desc:`Invoice ${i.number} — ${i.client}`, type:"invoice", credit:c.t, debit:0 };
+                  }),
+                  ...invoices.filter(i=>i.status!=="paid"&&i.status!=="draft").map(i=>{
+                    const c=ci(i);
+                    return { date:i.date, desc:`${i.status.charAt(0).toUpperCase()+i.status.slice(1)}: Inv ${i.number} — ${i.client}`, type:"outstanding", credit:0, debit:0, pending:c.t };
+                  }),
+                  ...expenses.map(e=>({
+                    date:e.date, desc:e.desc||e.category, type:"expense", credit:0, debit:e.amount,
+                  })),
+                ].sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+                if (entries.length === 0) return (
+                  <tr><td colSpan={6} style={{textAlign:"center",color:"var(--muted)",padding:"24px",fontSize:"13px"}}>No transactions yet — add invoices or expenses to see your ledger.</td></tr>
+                );
+
+                let balance = 0;
+                return entries.map((e,i)=>{
+                  balance += e.credit - e.debit;
+                  const typeColour = e.type==="invoice"?"var(--green)":e.type==="expense"?"var(--red)":"var(--orange)";
+                  const typeBg     = e.type==="invoice"?"rgba(27,110,74,.07)":e.type==="expense"?"rgba(194,59,46,.07)":"rgba(212,98,31,.07)";
+                  const typeLabel  = e.type==="invoice"?"Income":e.type==="expense"?"Expense":"Outstanding";
+                  return (
+                    <tr key={i}>
+                      <td style={{color:"var(--muted)",fontSize:"11.5px",whiteSpace:"nowrap"}}>{fmtD(e.date)}</td>
+                      <td style={{maxWidth:"200px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:"13px"}}>{e.desc}</td>
+                      <td>
+                        <span style={{
+                          fontSize:"10.5px",fontWeight:700,padding:"2px 8px",borderRadius:"20px",
+                          background:typeBg,color:typeColour,whiteSpace:"nowrap",
+                        }}>{typeLabel}</span>
+                      </td>
+                      <td className="tmono" style={{textAlign:"right",color:"var(--green)",fontSize:"13px"}}>
+                        {e.credit>0 ? fmt(e.credit) : ""}
+                      </td>
+                      <td className="tmono" style={{textAlign:"right",color:"var(--red)",fontSize:"13px"}}>
+                        {e.debit>0 ? fmt(e.debit) : ""}
+                        {e.pending>0 ? <span style={{color:"var(--orange)"}}>{fmt(e.pending)}</span> : ""}
+                      </td>
+                      <td className="tmono" style={{textAlign:"right",fontWeight:700,fontSize:"13px",color:balance>=0?"var(--green)":"var(--red)"}}>
+                        {fmt(Math.abs(balance))}
+                        <span style={{fontSize:"10px",fontWeight:400,color:"var(--muted)",marginLeft:"3px"}}>{balance>=0?"CR":"DR"}</span>
+                      </td>
+                    </tr>
+                  );
+                });
+              })()}
+            </tbody>
+            <tfoot>
+              <tr style={{background:"var(--surface2)",fontWeight:700}}>
+                <td colSpan={3} style={{fontWeight:700,fontSize:"13px"}}>Totals</td>
+                <td className="tmono" style={{textAlign:"right",color:"var(--green)",fontWeight:700}}>{fmt(invoices.filter(i=>i.status==="paid").reduce((a,i)=>a+ci(i).t,0))}</td>
+                <td className="tmono" style={{textAlign:"right",color:"var(--red)",fontWeight:700}}>{fmt(expenses.reduce((a,e)=>a+e.amount,0))}</td>
+                <td className="tmono" style={{textAlign:"right",fontWeight:700,color:(invoices.filter(i=>i.status==="paid").reduce((a,i)=>a+ci(i).t,0)-expenses.reduce((a,e)=>a+e.amount,0))>=0?"var(--green)":"var(--red)"}}>
+                  {fmt(Math.abs(invoices.filter(i=>i.status==="paid").reduce((a,i)=>a+ci(i).t,0)-expenses.reduce((a,e)=>a+e.amount,0)))}
+                  <span style={{fontSize:"10px",fontWeight:400,color:"var(--muted)",marginLeft:"3px"}}>
+                    {(invoices.filter(i=>i.status==="paid").reduce((a,i)=>a+ci(i).t,0)-expenses.reduce((a,e)=>a+e.amount,0))>=0?"CR":"DR"}
+                  </span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
     </div>
@@ -2151,8 +2243,15 @@ function SignIn({ onReg }) {
         <div className="auth-mob-hd">
           <div className="auth-mob-circle1"/>
           <div className="auth-mob-circle2"/>
+          <div style={{display:"flex",alignItems:"center",gap:"14px",marginBottom:"14px"}}>
+            <Elephant size={56}/>
+          </div>
           <div className="auth-mob-logo">The Busy <span>Bookie</span></div>
-          <div className="auth-mob-sub">Your Bookie, Your Business</div>
+          <div className="auth-mob-sub">GST, BAS & invoicing<br/>done for you.</div>
+          {/* Wave */}
+          <svg className="auth-mob-wave" viewBox="0 0 390 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48 L0 28 Q60 8 120 22 Q180 36 240 18 Q300 0 390 20 L390 48 Z" fill="var(--bg)"/>
+          </svg>
         </div>
         <div className="auth-box">
           <div className="auth-title">Welcome back</div>
