@@ -2178,14 +2178,40 @@ function SignIn({ onReg }) {
 ══════════════════════════════════════════════════════════════════════════ */
 const ST = ["ACT","NSW","NT","QLD","SA","TAS","VIC","WA"];
 const IND = ["Accounting & Finance","Construction & Development","Healthcare","Hospitality","Legal","Property & Real Estate","Retail","Technology","Trade & Labour","Transport & Logistics","Other"];
-const PL = [{id:"starter",name:"Starter",price:"$0/mo",desc:"Up to 5 invoices/mo · 1 user · GST tracker"},{id:"pro",name:"Pro",price:"$29/mo",desc:"Unlimited invoices · BAS · AI receipt scanning"}];
+const PL = [
+  {
+    id:"starter",
+    name:"Starter",
+    price:"Free",
+    badge:null,
+    desc:"Up to 5 invoices/month · GST tracker · BAS forecast · AI receipt scanner (5 scans/month) · 1 user",
+  },
+  {
+    id:"essentials",
+    name:"Essentials",
+    price:"$9.95",
+    per:"/month",
+    badge:"Most Popular",
+    desc:"Everything a small business needs to stay on top of GST, BAS and invoicing. Unlimited invoices, PAYG calculations and AI receipt scanning — done properly for under $10 a month.",
+    features:["Unlimited invoices & expenses","Unlimited AI receipt scanning","BAS forecast + quarterly P&L + EOFY report","PAYG up to 5 employees","Company tax + HECS calculator","Tax payments tracker","1 connected accountant","Email support"],
+  },
+  {
+    id:"premium",
+    name:"Premium",
+    price:"$59.95",
+    per:"/month",
+    badge:null,
+    desc:"The complete Busy Bookie experience. Unlimited everything — invoices, expenses, employees, client accounts. Priority support and early access to new features.",
+    features:["Everything in Essentials","Multiple business entities (up to 5)","Up to 10 accountant / team seats","Full accountant portal","Unlimited employees (PAYG)","Branded invoice exports","Priority support (4hr response)","Early access to new features"],
+  },
+];
 
 function Register({ onSI }) {
   const [step,setStep]   = useState(0); // 0=role select, 1=business, 2=account, 3=plan
   const [role,setRole]   = useState("client"); // client | accountant
   const [biz,setBiz]     = useState({name:"",abn:"",state:"",industry:""});
   const [acct,setAcct]   = useState({first:"",last:"",email:"",pass:"",conf:""});
-  const [plan,setPlan]   = useState("starter");
+  const [plan,setPlan]   = useState("essentials");
   const [err,setErr]     = useState("");
   const [loading,setL]   = useState(false);
   const [done,setDone]   = useState(false);
@@ -2216,6 +2242,7 @@ function Register({ onSI }) {
       email: acct.email,
       password: acct.pass,
       options: {
+        emailRedirectTo: "https://busybookie.com.au/",
         data: {
           name: fullName,
           business_name: biz.name,
@@ -2249,10 +2276,48 @@ function Register({ onSI }) {
       <div className="auth-panel">
         <div className="auth-mob-hd"><div className="auth-mob-logo">The Busy <span>Bookie</span></div></div>
         <div className="auth-box" style={{textAlign:"center"}}>
-          <div style={{fontSize:"52px",marginBottom:"14px"}}>🎉</div>
-          <div className="auth-title">You're all set!</div>
-          <div className="auth-sub" style={{marginBottom:"20px"}}>Your account is ready. Signing you in…</div>
-          <div style={{width:"44px",height:"4px",background:"var(--brand)",borderRadius:"2px",margin:"0 auto"}}/>
+          {/* Elephant mascot instead of emoji */}
+          <div style={{display:"flex",justifyContent:"center",marginBottom:"16px"}}>
+            <Elephant size={72}/>
+          </div>
+          <div className="auth-title">Account created!</div>
+          <div className="auth-sub" style={{marginBottom:"20px"}}>
+            Your Busy Bookie account is ready.
+          </div>
+
+          {/* Email verification notice */}
+          <div style={{
+            background:"var(--brand-dim)",
+            border:"1.5px solid rgba(27,110,74,.25)",
+            borderRadius:"10px",
+            padding:"16px 18px",
+            marginBottom:"14px",
+            textAlign:"left",
+          }}>
+            <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"8px"}}>
+              <span style={{fontSize:"20px"}}>✉️</span>
+              <span style={{fontWeight:700,fontSize:"14px",color:"var(--brand)"}}>Check your email to verify your account</span>
+            </div>
+            <div style={{fontSize:"13px",color:"var(--muted)",lineHeight:1.6}}>
+              We've sent a verification link to <strong style={{color:"var(--text)"}}>{acct.email}</strong>.
+              Click the link in that email to activate your account and sign in.
+            </div>
+          </div>
+
+          <div style={{
+            background:"var(--surface2)",
+            borderRadius:"8px",
+            padding:"10px 14px",
+            fontSize:"12px",
+            color:"var(--muted)",
+            textAlign:"left",
+            display:"flex",
+            alignItems:"center",
+            gap:"8px",
+          }}>
+            <span>📁</span>
+            <span>Can't find it? Check your <strong>spam or junk folder</strong> — it sometimes ends up there.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -2337,16 +2402,54 @@ function Register({ onSI }) {
             </>}
 
             {step===3 && role==="client" && <>
-              <div className="plan-grid">
+              <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
                 {PL.map(p=>(
-                  <div key={p.id} className={`plan-card ${plan===p.id?"sel":""}`} onClick={()=>setPlan(p.id)}>
-                    <div className="plan-name">{p.name}</div>
-                    <div className="plan-price">{p.price}</div>
-                    <div className="plan-desc">{p.desc}</div>
+                  <div key={p.id} onClick={()=>setPlan(p.id)} style={{
+                    border: plan===p.id ? "2px solid var(--brand)" : "1.5px solid var(--border)",
+                    borderRadius:"10px",
+                    padding:"14px 16px",
+                    cursor:"pointer",
+                    background: plan===p.id ? "var(--brand-dim)" : "var(--surface)",
+                    transition:"all .15s",
+                    position:"relative",
+                  }}>
+                    {p.badge && (
+                      <div style={{
+                        position:"absolute",top:"-10px",right:"14px",
+                        background:"var(--brand)",color:"#fff",
+                        fontSize:"10px",fontWeight:700,
+                        padding:"2px 10px",borderRadius:"20px",
+                        letterSpacing:"0.5px",
+                      }}>{p.badge}</div>
+                    )}
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"4px"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                        <div style={{
+                          width:"16px",height:"16px",borderRadius:"50%",flexShrink:0,
+                          border: plan===p.id ? "5px solid var(--brand)" : "2px solid var(--border)",
+                          background:"var(--surface)",
+                        }}/>
+                        <span style={{fontWeight:700,fontSize:"14px"}}>{p.name}</span>
+                      </div>
+                      <div style={{textAlign:"right"}}>
+                        <span style={{fontFamily:"var(--ff)",fontSize:"20px",fontWeight:800,color:"var(--brand)"}}>{p.price}</span>
+                        {p.per && <span style={{fontSize:"11px",color:"var(--muted)"}}>{p.per}</span>}
+                      </div>
+                    </div>
+                    <div style={{fontSize:"11.5px",color:"var(--muted)",lineHeight:1.5,marginBottom: p.features?"8px":"0",paddingLeft:"24px"}}>{p.desc}</div>
+                    {p.features && plan===p.id && (
+                      <div style={{display:"flex",flexDirection:"column",gap:"3px",paddingLeft:"24px"}}>
+                        {p.features.map(f=>(
+                          <div key={f} style={{display:"flex",alignItems:"center",gap:"6px",fontSize:"11px",color:"var(--text)"}}>
+                            <span style={{color:"var(--brand)",fontWeight:700,flexShrink:0}}>✓</span>{f}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-              <div style={{fontSize:"11px",color:"var(--dim)",textAlign:"center"}}>All plans include GST tracking, BAS forecasting & ATO-compliant invoices.</div>
+              <div style={{fontSize:"11px",color:"var(--dim)",textAlign:"center"}}>All plans include GST tracking, BAS forecasting & ATO-compliant invoices. Cancel any time.</div>
               <div style={{display:"flex",gap:"9px"}}>
                 <button className="auth-btn auth-btn-ghost" style={{border:"1.5px solid var(--border)"}} onClick={()=>{setStep(2);setErr("");}}>← Back</button>
                 <button className="auth-btn" onClick={create} disabled={loading}>{loading?"Creating account…":"Create Account"}</button>
@@ -2365,7 +2468,7 @@ function Register({ onSI }) {
 ══════════════════════════════════════════════════════════════════════════ */
 const TOUR_STEPS = [
   {
-    title:"Welcome to The Busy Bookie! 🎉",
+    title:"Welcome to The Busy Bookie",
     body:"Your Australian bookkeeping app is ready. Let us show you around in 60 seconds. We'll walk through each key feature so you can hit the ground running.",
     target:null, // centred, no spotlight
     pos:"centre",
@@ -2419,7 +2522,7 @@ const TOUR_STEPS = [
     pos:"right",
   },
   {
-    title:"You're all set! ✅",
+    title:"You're all set!",
     body:"Start by adding your first invoice or scanning a receipt. If you have an accountant, go to Settings and add their email — they'll get instant access to your books.",
     target:null,
     pos:"centre",
