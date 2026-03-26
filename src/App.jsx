@@ -2785,7 +2785,37 @@ function Settings({ user, profile, signOut, onTour }) {
     state:         profile?.state || user.user_metadata?.state || "",
     industry:      profile?.industry || user.user_metadata?.industry || "",
   });
-  const [saveMsg,setSaveMsg] = useState("");
+  const [saveMsg,setSaveMsg]         = useState("");
+  const [upgradeLoading,setUpgradeLoading] = useState("");
+
+  const currentPlan = profile?.plan || user.user_metadata?.plan || "starter";
+  const subStatus   = profile?.subscription_status;
+
+  const startCheckout = async (planId) => {
+    setUpgradeLoading(planId);
+    try {
+      const resp = await fetch("/.netlify/functions/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plan:      planId,
+          userId:    user.id,
+          email:     user.email,
+          returnUrl: window.location.origin,
+        }),
+      });
+      const data = await resp.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Could not start checkout: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      alert("Checkout error: " + err.message);
+    } finally {
+      setUpgradeLoading("");
+    }
+  };
 
   const saveBiz = async () => {
     const { error } = await supabase.from("profiles")
@@ -2914,6 +2944,83 @@ function Settings({ user, profile, signOut, onTour }) {
           {msg && <div style={{marginTop:"10px",fontSize:"13px",color:msg.startsWith("✓")?"var(--green)":"var(--red)"}}>{msg}</div>}
           <div className="fhint" style={{marginTop:"8px"}}>Enter the email your accountant used to register as an accountant on The Busy Bookie.</div>
         </div>
+        {/* Subscription & Plan */}
+        <div className="card">
+          <div className="sh2">
+            <div className="sh2-title">Subscription & Plan</div>
+            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+              <span style={{
+                fontSize:"11px",fontWeight:700,padding:"2px 10px",borderRadius:"20px",
+                background: currentPlan==="premium"?"var(--brand-dark)":currentPlan==="essentials"?"var(--brand)":"var(--surface2)",
+                color: currentPlan==="starter"?"var(--muted)":"#fff",
+                textTransform:"capitalize",
+              }}>{currentPlan}</span>
+              {subStatus==="past_due" && <span className="badge" style={{background:"var(--red)",color:"#fff",fontSize:"10px"}}>Payment due</span>}
+            </div>
+          </div>
+
+          {/* Current plan summary */}
+          <div style={{fontSize:"13px",color:"var(--muted)",marginBottom:"16px"}}>
+            {currentPlan==="starter" && "You're on the free Starter plan — up to 5 invoices per month."}
+            {currentPlan==="essentials" && "You're on Essentials — $9.95/month. Unlimited invoices, AI scanning and BAS reports."}
+            {currentPlan==="premium"   && "You're on Premium — $59.95/month. Full access including accountant portal and multiple entities."}
+          </div>
+
+          {/* Upgrade options — only show plans above current */}
+          {currentPlan !== "premium" && (
+            <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+              {currentPlan === "starter" && (
+                <div style={{
+                  border:"1.5px solid rgba(27,110,74,.3)",borderRadius:"10px",
+                  padding:"14px 16px",background:"var(--brand-dim)",
+                }}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"8px",flexWrap:"wrap",gap:"8px"}}>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:"14px"}}>Essentials</div>
+                      <div style={{fontSize:"11.5px",color:"var(--muted)"}}>Unlimited invoices, AI scanning, PAYG & EOFY report</div>
+                    </div>
+                    <div style={{textAlign:"right",flexShrink:0}}>
+                      <div style={{fontFamily:"var(--ff)",fontSize:"20px",fontWeight:800,color:"var(--brand)"}}>$9.95</div>
+                      <div style={{fontSize:"10.5px",color:"var(--muted)"}}>per month</div>
+                    </div>
+                  </div>
+                  <button className="btn btn-p btn-blk" style={{width:"100%",justifyContent:"center"}}
+                    onClick={()=>startCheckout("essentials")}
+                    disabled={upgradeLoading==="essentials"}>
+                    {upgradeLoading==="essentials" ? "Redirecting to Stripe…" : "Upgrade to Essentials →"}
+                  </button>
+                </div>
+              )}
+              <div style={{
+                border:"1.5px solid var(--border)",borderRadius:"10px",
+                padding:"14px 16px",
+              }}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"8px",flexWrap:"wrap",gap:"8px"}}>
+                  <div>
+                    <div style={{fontWeight:700,fontSize:"14px"}}>Premium</div>
+                    <div style={{fontSize:"11.5px",color:"var(--muted)"}}>Multi-entity, accountant portal, priority support</div>
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    <div style={{fontFamily:"var(--ff)",fontSize:"20px",fontWeight:800,color:"var(--brand)"}}>$59.95</div>
+                    <div style={{fontSize:"10.5px",color:"var(--muted)"}}>per month</div>
+                  </div>
+                </div>
+                <button className="btn btn-g btn-blk" style={{width:"100%",justifyContent:"center"}}
+                  onClick={()=>startCheckout("premium")}
+                  disabled={upgradeLoading==="premium"}>
+                  {upgradeLoading==="premium" ? "Redirecting to Stripe…" : "Upgrade to Premium →"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {currentPlan !== "starter" && (
+            <div style={{fontSize:"12px",color:"var(--dim)",marginTop:"10px"}}>
+              To cancel or manage your subscription, contact <a href="mailto:support@busybookie.com.au" style={{color:"var(--brand)"}}>support@busybookie.com.au</a> or visit your Stripe billing portal.
+            </div>
+          )}
+        </div>
+
         {/* Tour + Sign out */}
         <div className="card">
           <div className="sh2-title" style={{marginBottom:"14px"}}>Help & Account</div>
@@ -3155,9 +3262,10 @@ function CompanyTax({ invoices, expenses }) {
   const [otherDeductions, setOtherDeductions] = useState("");
   const [dividends, setDividends]             = useState("");
   const [employmentIncome, setEmploymentIncome]     = useState("");
-  const [employerTaxWithheld, setEmployerTaxWithheld] = useState("");
   const [hasHECS, setHasHECS]               = useState(() => localStorage.getItem("bb_hecs_enabled")==="true");
   const [hecsBalance, setHecsBalance]       = useState(() => localStorage.getItem("bb_hecs_balance")||"");
+  const [hecsPerPayslip, setHecsPerPayslip] = useState(() => localStorage.getItem("bb_hecs_payslip")||"");
+  const [hecsPayFreq, setHecsPayFreq]       = useState(() => localStorage.getItem("bb_hecs_freq")||"fortnightly");
   const [fy, setFy] = useState(new Date().getMonth()>=6?new Date().getFullYear():new Date().getFullYear()-1);
 
   // Persist HECS settings so Dashboard can read them
@@ -3169,10 +3277,20 @@ function CompanyTax({ invoices, expenses }) {
     setHecsBalance(val);
     localStorage.setItem("bb_hecs_balance", val);
   };
+  const updateHecsPayslip = (val) => {
+    setHecsPerPayslip(val);
+    localStorage.setItem("bb_hecs_payslip", val);
+  };
+  const updateHecsFreq = (val) => {
+    setHecsPayFreq(val);
+    localStorage.setItem("bb_hecs_freq", val);
+  };
   const updateEntityType = (val) => {
     setEntityType(val);
     localStorage.setItem("bb_entity_type", val);
   };
+
+  const FREQ_MULTIPLIERS = { weekly:52, fortnightly:26, monthly:12, quarterly:4 };
 
   const paidRevenue  = invoices.filter(i=>i.status==="paid").reduce((s,i)=>s+ci(i).s,0);
   const totalExpense = expenses.reduce((s,e)=>s+(e.gstIncluded?e.amount-e.amount/11:e.amount),0);
@@ -3180,8 +3298,16 @@ function CompanyTax({ invoices, expenses }) {
   const deduct  = parseFloat(otherDeductions)||0;
   const divIn   = parseFloat(dividends)||0;
   const empInc  = parseFloat(employmentIncome)||0;
-  const empTax  = parseFloat(employerTaxWithheld)||0;
   const hecsBal = parseFloat(hecsBalance)||0;
+  const hecsPayslipAmt = parseFloat(hecsPerPayslip)||0;
+
+  // Auto-calculate employer tax withheld from gross employment income using ATO brackets
+  const empTax = empInc > 0 ? paygWithMedicare(empInc) : 0;
+
+  // Annualised HECS withheld by employer from payslips
+  const hecsWithheldByEmployer = hecsPayslipAmt > 0
+    ? hecsPayslipAmt * (FREQ_MULTIPLIERS[hecsPayFreq] || 26)
+    : 0;
 
   const grossIncome   = paidRevenue + other + divIn + empInc;
   const totalDeduct   = totalExpense + deduct;
@@ -3213,29 +3339,27 @@ function CompanyTax({ invoices, expenses }) {
   const hecsRate       = hecsRepaymentRate(taxableIncome);
   const hecsRepayment  = taxableIncome * hecsRate;
   const hecsMonthly    = hecsRepayment / 12;
+  // Net HECS still owing at tax time after employer withholding
+  const hecsNetOwing   = Math.max(0, hecsRepayment - hecsWithheldByEmployer);
   const yearsToPayOff  = hecsBal > 0 && hecsRepayment > 0 ? Math.ceil(hecsBal / hecsRepayment) : null;
 
   const RATES = {
     company_small: {rate:0.25, label:"Small Business Company (25%)", note:"Applies to companies with aggregated turnover under $50M that are base rate entities", franking:0.25},
     company_base:  {rate:0.30, label:"Standard Company (30%)",       note:"Applies to companies that do not qualify for the small business rate", franking:0.30},
     trust:         {rate:0.47, label:"Trust (top marginal rate est.)",note:"Trusts distribute income to beneficiaries — this is an estimate at top marginal rate", franking:0},
-    sole_trader:   {rate:null, label:"Sole Trader / Individual",      note:"Uses ATO individual tax brackets including 2% Medicare levy. Enter your other job's income below so tax is calculated on your total income — not just business income.", franking:0},
+    sole_trader:   {rate:null, label:"Sole Trader / Individual",      note:"Uses ATO individual tax brackets including 2% Medicare levy. Enter your other job's gross income and we'll automatically calculate how much tax your employer would have withheld — so your additional tax bill is accurate.", franking:0},
   };
 
   const rateInfo = RATES[entityType];
   let taxPayable = 0;
-  let taxOnEmploymentOnly = 0;
 
   if (entityType === "sole_trader") {
-    // Tax on TOTAL income (business + employment)
     taxPayable = paygWithMedicare(taxableIncome);
-    // Tax that would apply to employment income only (already withheld by employer)
-    taxOnEmploymentOnly = paygWithMedicare(empInc);
   } else {
     taxPayable = taxableIncome * (rateInfo.rate||0);
   }
 
-  // For sole trader: additional tax on top of what employer already withheld
+  // For sole trader: additional tax on top of what employer already withheld (auto-calculated)
   const additionalTaxOwed = entityType === "sole_trader"
     ? Math.max(0, taxPayable - empTax)
     : taxPayable;
@@ -3287,24 +3411,29 @@ function CompanyTax({ invoices, expenses }) {
             {entityType==="sole_trader" && (
               <>
                 <div style={{background:"rgba(37,99,168,.06)",border:"1px solid rgba(37,99,168,.15)",borderRadius:"8px",padding:"12px 14px",fontSize:"12.5px",color:"var(--blue)",lineHeight:1.6}}>
-                  💼 <strong>Secondary Employment Income</strong> — Enter your gross income from your other job so your total tax is calculated correctly. Without this, the estimate will be too low.
+                  💼 <strong>Employment Income</strong> — Enter your gross annual salary from your other job. We'll automatically estimate how much tax your employer withholds so your additional tax owing is calculated accurately.
                 </div>
-                <div className="frow">
-                  <div className="field">
-                    <label>Gross Employment Income (other job)</label>
-                    <input type="number" value={employmentIncome} onChange={e=>setEmploymentIncome(e.target.value)} placeholder="0.00" inputMode="decimal"/>
-                    <div className="fhint">Annual gross salary / wages from your employer (before tax)</div>
-                  </div>
-                  <div className="field">
-                    <label>Tax Withheld by Employer</label>
-                    <input type="number" value={employerTaxWithheld} onChange={e=>setEmployerTaxWithheld(e.target.value)} placeholder="0.00" inputMode="decimal"/>
-                    <div className="fhint">From your payment summary or income statement in myGov</div>
-                  </div>
+                <div className="field">
+                  <label>Gross Employment Income (annual, before tax)</label>
+                  <input type="number" value={employmentIncome} onChange={e=>setEmploymentIncome(e.target.value)} placeholder="0.00" inputMode="decimal"/>
+                  <div className="fhint">Your total salary package before any deductions — from your contract or payslip × pay periods</div>
                 </div>
                 {empInc > 0 && (
-                  <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid var(--surface2)"}}>
-                    <span style={{color:"var(--muted)",fontSize:"13px"}}>Employment income included in total</span>
-                    <span style={{fontWeight:600,color:"var(--blue)"}}>{fmt(empInc)}</span>
+                  <div style={{
+                    background:"var(--brand-dim)",border:"1px solid rgba(27,110,74,.2)",
+                    borderRadius:"8px",padding:"12px 14px",fontSize:"12.5px",lineHeight:1.7,
+                  }}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:"4px"}}>
+                      <span style={{color:"var(--muted)"}}>Employment income</span>
+                      <span style={{fontWeight:600}}>{fmt(empInc)}</span>
+                    </div>
+                    <div style={{display:"flex",justifyContent:"space-between"}}>
+                      <span style={{color:"var(--muted)"}}>Estimated tax withheld by employer</span>
+                      <span style={{fontWeight:600,color:"var(--brand)"}}>≈ {fmt(empTax)}</span>
+                    </div>
+                    <div style={{fontSize:"11px",color:"var(--dim)",marginTop:"6px"}}>
+                      Calculated using ATO FY2025-26 tax brackets + 2% Medicare levy. Actual amount may vary slightly based on tax offsets and your withholding variation.
+                    </div>
                   </div>
                 )}
               </>
@@ -3348,9 +3477,9 @@ function CompanyTax({ invoices, expenses }) {
             {l:"Taxable Income",        v:fmt(taxableIncome),           c:"brand"},
             {l:"Tax Rate",             v:rateInfo.rate!=null?`${(rateInfo.rate*100)}%`:"Brackets", c:""},
             {l:"Total Tax on Income",   v:fmt(taxPayable),              c:"r"},
-            {l:entityType==="sole_trader"&&empTax>0?"Less: Tax Already Withheld":"Quarterly Instalment",
-              v:entityType==="sole_trader"&&empTax>0?`(${fmt(empTax)})`:fmt(quarterlyInstalment), c:""},
-            ...(entityType==="sole_trader"&&empTax>0?[{l:"Additional Tax Owing", v:fmt(additionalTaxOwed), c:"r"}]:[]),
+            {l:entityType==="sole_trader"&&empInc>0?"Less: Est. Employer Withholding":"Quarterly Instalment",
+              v:entityType==="sole_trader"&&empInc>0?`(${fmt(empTax)})`:fmt(quarterlyInstalment), c:""},
+            ...(entityType==="sole_trader"&&empInc>0?[{l:"Additional Tax Owing", v:fmt(additionalTaxOwed), c:"r"}]:[]),
           ].map(s=>(
             <div key={s.l} className="card card-xs" style={{boxShadow:"none",background:s.l==="Additional Tax Owing"?"rgba(194,59,46,.06)":"var(--surface2)",border:s.l==="Additional Tax Owing"?"1px solid rgba(194,59,46,.2)":"none"}}>
               <div className="sl">{s.l}</div>
@@ -3364,8 +3493,8 @@ function CompanyTax({ invoices, expenses }) {
             <strong style={{color:"var(--blue)"}}>How this is calculated:</strong>
             <div style={{color:"var(--muted)",marginTop:"6px"}}>
               Your total taxable income is <strong style={{color:"var(--text)"}}>{fmt(taxableIncome)}</strong> (business + employment income minus deductions).
-              Tax on this total income is <strong style={{color:"var(--text)"}}>{fmt(taxPayable)}</strong>.
-              Your employer has already withheld <strong style={{color:"var(--text)"}}>{fmt(empTax)}</strong>.
+              Total tax on this income is <strong style={{color:"var(--text)"}}>{fmt(taxPayable)}</strong>.
+              Your employer is estimated to withhold <strong style={{color:"var(--text)"}}>{fmt(empTax)}</strong> during the year.
               You will owe an additional <strong style={{color:"var(--red)"}}>{fmt(additionalTaxOwed)}</strong> at tax time — set aside approximately <strong style={{color:"var(--red)"}}>{fmt(additionalTaxOwed/12)}/month</strong>.
             </div>
           </div>
@@ -3451,16 +3580,64 @@ function CompanyTax({ invoices, expenses }) {
             {/* Repayment breakdown */}
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:"12px"}}>
               {[
-                {l:"Taxable Income",      v:fmt(taxableIncome),               c:""},
-                {l:"Repayment Rate",      v:hecsRate>0?`${(hecsRate*100).toFixed(1)}%`:"Nil", c:""},
-                {l:"Annual Repayment",    v:fmt(hecsRepayment),               c:hecsRate>0?"r":""},
-                {l:"Monthly to set aside",v:fmt(hecsMonthly),                 c:hecsRate>0?"r":""},
+                {l:"Taxable Income",           v:fmt(taxableIncome),                               c:""},
+                {l:"Repayment Rate",           v:hecsRate>0?`${(hecsRate*100).toFixed(1)}%`:"Nil", c:""},
+                {l:"Annual Repayment",         v:fmt(hecsRepayment),                               c:hecsRate>0?"r":""},
+                {l:"Monthly to set aside",     v:fmt(hecsMonthly),                                 c:hecsRate>0?"r":""},
               ].map(s=>(
                 <div key={s.l} className="card card-xs" style={{boxShadow:"none",background:"var(--surface2)"}}>
                   <div className="sl">{s.l}</div>
                   <div className={`sv ${s.c}`} style={{fontSize:"17px"}}>{s.v}</div>
                 </div>
               ))}
+            </div>
+
+            {/* HECS withheld per payslip — new field */}
+            <div style={{background:"rgba(37,99,168,.06)",border:"1px solid rgba(37,99,168,.15)",borderRadius:"8px",padding:"14px 16px"}}>
+              <div style={{fontWeight:700,fontSize:"13px",color:"var(--blue)",marginBottom:"10px"}}>
+                💼 HECS withheld by your employer
+              </div>
+              <div className="frow" style={{gap:"10px",alignItems:"flex-end"}}>
+                <div className="field" style={{flex:1,marginBottom:0}}>
+                  <label>HECS withheld per payslip</label>
+                  <input type="number" value={hecsPerPayslip}
+                    onChange={e=>updateHecsPayslip(e.target.value)}
+                    placeholder="0.00" inputMode="decimal"/>
+                  <div className="fhint">The HECS/study loan amount shown on each of your payslips</div>
+                </div>
+                <div className="field" style={{minWidth:"140px",marginBottom:0}}>
+                  <label>Pay frequency</label>
+                  <select value={hecsPayFreq} onChange={e=>updateHecsFreq(e.target.value)}>
+                    <option value="weekly">Weekly</option>
+                    <option value="fortnightly">Fortnightly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                  </select>
+                </div>
+              </div>
+              {hecsWithheldByEmployer > 0 && (
+                <div style={{marginTop:"12px",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"10px"}}>
+                  <div style={{fontSize:"12.5px"}}>
+                    <div style={{color:"var(--muted)",marginBottom:"2px"}}>Withheld by employer/yr</div>
+                    <div style={{fontWeight:700,color:"var(--blue)"}}>{fmt(hecsWithheldByEmployer)}</div>
+                  </div>
+                  <div style={{fontSize:"12.5px"}}>
+                    <div style={{color:"var(--muted)",marginBottom:"2px"}}>ATO repayment required</div>
+                    <div style={{fontWeight:700,color:"var(--orange)"}}>{fmt(hecsRepayment)}</div>
+                  </div>
+                  <div style={{fontSize:"12.5px"}}>
+                    <div style={{color:"var(--muted)",marginBottom:"2px"}}>Net owing at tax time</div>
+                    <div style={{fontWeight:700,color:hecsNetOwing>0?"var(--red)":"var(--green)"}}>
+                      {hecsNetOwing > 0 ? fmt(hecsNetOwing) : "Covered ✓"}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {hecsWithheldByEmployer === 0 && (
+                <div style={{fontSize:"12px",color:"var(--dim)",marginTop:"8px"}}>
+                  If your employer withholds HECS from your pay, enter the amount here to see how much (if any) you'll still owe at tax time.
+                </div>
+              )}
             </div>
 
             {/* Optional balance field */}
@@ -3912,6 +4089,22 @@ export default function App() {
   const [clientInvoices,setClientInvoices] = useState([]);
   const [clientExpenses,setClientExpenses] = useState([]);
   const [showTour,setShowTour]     = useState(false);
+  const [checkoutToast,setCheckoutToast] = useState(null);
+
+  // Handle Stripe redirect back
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("checkout");
+    if (status === "success") {
+      setCheckoutToast({ ok:true, msg:"Payment successful! Your plan has been upgraded. It may take a moment to reflect." });
+      setPage("settings");
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (status === "cancelled") {
+      setCheckoutToast({ ok:false, msg:"Checkout was cancelled — no charge was made." });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    if (status) setTimeout(() => setCheckoutToast(null), 7000);
+  }, []);
 
   const loadProfile = async (userId) => {
     // Try direct query first, fallback handles RLS issues
@@ -4137,6 +4330,25 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* Checkout toast */}
+      {checkoutToast && (
+        <div style={{
+          position:"fixed",top:"20px",left:"50%",transform:"translateX(-50%)",
+          background: checkoutToast.ok ? "var(--brand-dark)" : "var(--surface)",
+          color: checkoutToast.ok ? "#fff" : "var(--text)",
+          border: checkoutToast.ok ? "none" : "1px solid var(--border)",
+          padding:"14px 20px",borderRadius:"10px",
+          boxShadow:"0 8px 32px rgba(0,0,0,.18)",
+          zIndex:600,fontSize:"13.5px",fontWeight:500,
+          display:"flex",alignItems:"center",gap:"10px",
+          maxWidth:"420px",width:"calc(100vw - 32px)",
+          animation:"fadeInDown .25s ease",
+        }}>
+          <span style={{fontSize:"18px"}}>{checkoutToast.ok ? "✅" : "ℹ️"}</span>
+          {checkoutToast.msg}
+        </div>
+      )}
 
       {/* Onboarding tour */}
       {showTour && (
